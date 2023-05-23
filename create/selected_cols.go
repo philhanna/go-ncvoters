@@ -1,4 +1,4 @@
-package ncvoters
+package create
 
 var selectedCols = []string{
 	"county_id",

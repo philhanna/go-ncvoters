@@ -1,4 +1,4 @@
-package ncvoters
+package create
 
 import (
 	"fmt"

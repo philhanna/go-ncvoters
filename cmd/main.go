@@ -25,8 +25,8 @@ package main
 
 import (
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/philhanna/go-ncvoters/create"
 	"github.com/philhanna/go-ncvoters/download"
-	"github.com/philhanna/go-ncvoters/ncvoters"
 	"github.com/philhanna/go-ncvoters/util"
 	"log"
 )
@@ -63,7 +63,7 @@ func main() {
 	}
 
 	// Create the database
-	err = ncvoters.CreateDatabase(zipFileName, csvFileName, dbFileName, progressEvery)
+	err = create.CreateDatabase(zipFileName, csvFileName, dbFileName, progressEvery)
 	if err != nil {
 		log.Fatal("Failed to create the database:", err)
 	}
