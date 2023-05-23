@@ -2,9 +2,12 @@ package create
 
 import (
 	"database/sql"
+	"encoding/csv"
+	"io"
 	"log"
 )
 
+// CreateDatabase is the mainline for creating a database from the zip file.
 func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery int) error {
 	log.Println("Creating database...")
 
@@ -32,14 +35,14 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 	}
 
 	// Create a prepared statement for inserting records into the voters
-	// table
+	// table.
 	stmt, err := CreatePreparedStatement(tx)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 	defer stmt.Close()
-	
+
 	// Get the zip file entry for the embedded CSV file
 	zipEntry, err := GetZipEntry(zipFileName, csvFileName)
 	if err != nil {
@@ -47,68 +50,64 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 		return err
 	}
 
-	// Open that CSV file entry
-	csvReader, err := zipEntry.Open()
+	// Open the CSV file entry
+	f, err := zipEntry.Open()
 	if err != nil {
 		log.Println(err)
 		return err
 	}
-	defer csvReader.Close()
-	
-	/*
-	
-	zipEntry, err = os.Open(csvFileName)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	defer zipEntry.Close()
-	
-	reader := csv.NewReader(csvFile)
-		reader.FieldsPerRecord = -1 // Allow varying number of fields
+	defer f.Close()
 
-		columns, err := reader.Read()
+	// Create a CSV csvReader over the zip file entry
+	csvReader := csv.NewReader(f)
+	csvReader.Comma = '\t'
+	csvReader.FieldsPerRecord = -1 // Allow varying number of fields
+ 
+	// Get the column names.
+	colNames, err := csvReader.Read()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	selectedIndices := GetSelectedIndices(colNames, selectedCols)
+
+	// Read from the CSV reader and insert records into the database
+	count := 0
+	for {
+
+		// Read the next record
+		record, err := csvReader.Read()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			log.Println(err)
+			return err
+		}
+
+		// Choose just the columns we want
+		values := make([]interface{}, len(selectedIndices))
+		for i, idx := range selectedIndices {
+			values[i] = record[idx]
+		}
+
+		// Insert a record into the database
+		_, err = stmt.Exec(values...)
 		if err != nil {
 			log.Println(err)
 			return err
 		}
 
-		selectedIndices := GetSelectedIndices(columns, selectedCols)
-
-		count := 0
-		for {
-			record, err := reader.Read()
-			if err == io.EOF {
-				log.Println(err)
-				break
-			} else if err != nil {
-				log.Println(err)
-				return err
-			}
-
-			values := make([]interface{}, len(selectedIndices))
-			for i, idx := range selectedIndices {
-				values[i] = record[idx]
-			}
-
-			_, err = stmt.Exec(values...)
-			if err != nil {
-				log.Println(err)
-				return err
-			}
-
-			count++
-			if count%progressEvery == 0 {
-				log.Printf("%d records inserted", count)
-			}
+		count++
+		if count%progressEvery == 0 {
+			log.Printf("%d records inserted", count)
 		}
+	}
 
-		err = tx.Commit()
-		if err != nil {
-				log.Println(err)
-			return err
-		}
-	*/
+	err = tx.Commit()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
 	log.Println("Database created successfully!")
 	return nil
 }
