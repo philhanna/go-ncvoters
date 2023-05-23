@@ -24,30 +24,32 @@ const (
 	zipFileName  = "voter_data.zip"
 	csvFileName  = "voter_data.csv"
 	dbFileName   = "voter_data.db"
-	selectedCols = `
-county_id,
-voter_reg_num,
-last_name,
-first_name,
-middle_name,
-name_suffix_lbl,
-status_cd,
-reason_cd,
-res_street_address,
-res_city_desc,
-state_cd,
-zip_code,
-full_phone_number,
-race_code,
-ethnic_code,
-party_cd,
-gender_code,
-birth_year,
-age_at_year_end,
-birth_state
-`
 	progressEvery = 10000 // Log progress every n records
 )
+
+var selectedCols = []string{
+	"county_id",
+	"voter_reg_num",
+	"last_name",
+	"first_name",
+	"middle_name",
+	"name_suffix_lbl",
+	"status_cd",
+	"reason_cd",
+	"res_street_address",
+	"res_city_desc",
+	"state_cd",
+	"zip_code",
+	"full_phone_number",
+	"race_code",
+	"ethnic_code",
+	"party_cd",
+	"gender_code",
+	"birth_year",
+	"age_at_year_end",
+	"birth_state",
+}
+
 
 func main() {
 	err := downloadFile(zipURL, zipFileName)
@@ -55,7 +57,8 @@ func main() {
 		log.Fatal("Failed to download the zip file:", err)
 	}
 
-	err = createDatabase(csvFileName, selectedCols, dbFileName)
+	selectedColsString := strings.Join(selectedCols, ",")
+	err = createDatabase(csvFileName, selectedColsString, dbFileName)
 	if err != nil {
 		log.Fatal("Failed to create the database:", err)
 	}
