@@ -50,7 +50,7 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 		return err
 	}
 
-	// Open the CSV file inside the archive
+	// Open that CSV file entry
 	csvReader, err := zipEntry.Open()
 	if err != nil {
 		log.Println(err)
@@ -114,36 +114,6 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 	*/
 	log.Println("Database created successfully!")
 	return nil
-}
-
-// GetZipEntry gets a pointer to the embedded CSV file.
-func GetZipEntry(zipFileName string, entryName string) (*zip.File, error) {
-	
-	// Open the zip file
-	zipFile, err := zip.OpenReader(zipFileName)
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-	defer zipFile.Close()
-	
-	// Find the CSV file in the zip archive
-	var zipEntry *zip.File
-	for _, file := range zipFile.File {
-		if file.Name == entryName {
-			zipEntry = file
-			break
-		}
-	}
-	
-	// If the CSV file is not found, exit with an error
-	if zipEntry == nil {
-		err = fmt.Errorf("file %q not found in zip archive", entryName)
-		log.Println(err)
-		return nil, err
-	}
-
-	return zipEntry, nil
 }
 
 // CreateInsertSQL creates an SQL string that can be used for inserting
@@ -212,4 +182,33 @@ func GetSelectedIndices(columns, selectedCols []string) []int {
 
 	// Return the slice containing the indices of selected columns.
 	return selectedIndices
+}
+
+// GetZipEntry gets a pointer to the embedded CSV file.
+func GetZipEntry(zipFileName string, entryName string) (*zip.File, error) {
+	
+	// Open the zip file
+	zipFile, err := zip.OpenReader(zipFileName)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	
+	// Find the CSV file in the zip archive
+	var zipEntry *zip.File
+	for _, file := range zipFile.File {
+		if file.Name == entryName {
+			zipEntry = file
+			break
+		}
+	}
+	
+	// If the CSV file is not found, exit with an error
+	if zipEntry == nil {
+		err = fmt.Errorf("file %q not found in zip archive", entryName)
+		log.Println(err)
+		return nil, err
+	}
+
+	return zipEntry, nil
 }
