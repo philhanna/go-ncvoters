@@ -71,6 +71,7 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 		return err
 	}
 	selectedIndices := GetSelectedIndices(colNames, selectedCols)
+	sanitizeIndices := GetSelectedIndices(colNames, sanitizeCols)
 
 	// Read from the CSV reader and insert records into the database
 	count := 0
@@ -83,6 +84,11 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 		} else if err != nil {
 			log.Println(err)
 			return err
+		}
+
+		// Clean up the entries that have sloppy spaces
+		for _, idx := range sanitizeIndices {
+			record[idx] = Sanitize(record[idx])
 		}
 
 		// Choose just the columns we want

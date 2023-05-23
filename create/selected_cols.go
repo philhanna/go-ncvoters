@@ -22,3 +22,11 @@ var selectedCols = []string{
 	"age_at_year_end",
 	"birth_state",
 }
+
+var sanitizeCols = []string{
+	"last_name",
+	"first_name",
+	"middle_name",
+	"res_street_address",
+	"res_city_desc",
+}
