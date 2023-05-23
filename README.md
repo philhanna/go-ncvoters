@@ -2,7 +2,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/philhanna/go-ncvoters)][idGoReportCard]
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/philhanna/go-ncvoters)][idPkgGoDev]
 
-### References
+## References
 - [Github repository](https://github.com/philhanna/go-ncvoters)
 - [NC Board of Elections](https://www.ncsbe.gov/)
 - [File layout](https://s3.amazonaws.com/dl.ncsbe.gov/data/layout_ncvoter.txt)
