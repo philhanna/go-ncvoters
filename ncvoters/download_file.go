@@ -43,7 +43,7 @@ func DownloadFile(url, fileName string) error {
 	progress.LastPercent = 0
 
 	mb := float64(progress.Total) / float64(MEGABYTE)
-	log.Printf("Downloading file (%.2f mb)...\n", mb)
+	log.Printf("Downloading file (%.2fMB)...\n", mb)
 
 	resp, err := http.Get(url)
 	if err != nil {
@@ -79,8 +79,9 @@ func DownloadFile(url, fileName string) error {
 				s += "."
 			}
 			if percent > progress.LastPercent {
-				fmt.Printf("Percent complete: %d%%, [%-s] %d bytes in %v\r",
-					percent, s, progress.Downloaded, time.Since(stime))
+				mb := float64(progress.Downloaded) / float64(MEGABYTE)
+				fmt.Printf("Percent complete: %d%%, [%-s] %.2fMB in %v\r",
+					percent, s, mb, time.Since(stime))
 			}
 			progress.LastPercent = percent
 		}
