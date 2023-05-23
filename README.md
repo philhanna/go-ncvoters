@@ -2,6 +2,11 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/philhanna/go-ncvoters)][idGoReportCard]
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/philhanna/go-ncvoters)][idPkgGoDev]
 
+### References
+- [Github repository](https://github.com/philhanna/go-ncvoters)
+- [NC Board of Elections](https://www.ncsbe.gov/)
+- [File layout](https://s3.amazonaws.com/dl.ncsbe.gov/data/layout_ncvoter.txt)
+
 ## Overview
 Downloads selected columns from the NC voter registration data at the NC Board
 of Elections website and create an SQLite database file from it. The data is
@@ -119,9 +124,6 @@ deleting lines.
 ## Running the application
 
 There is a mainline in `cmd/main.go` that will run the overall application.
-
-### References
-- [Github repository](https://github.com/philhanna/go-ncvoters)
 
 [idGoReportCard]: https://goreportcard.com/report/github.com/philhanna/go-ncvoters
 [idPkgGoDev]: https://pkg.go.dev/github.com/philhanna/go-ncvoters
