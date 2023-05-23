@@ -70,6 +70,9 @@ var selectedCols = []string{
 func main() {
 	var err error
 
+	// Set the logging flags
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+	
 	// Download or reuse the voter zip file
 	if FileExists(zipFileName) {
 		log.Println("Reusing existing zip file")
