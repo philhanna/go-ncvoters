@@ -173,9 +173,9 @@ func CreatePreparedStatement(tx *sql.Tx) (*sql.Stmt, error) {
 // GetSelectedIndices returns the indices of selected columns from a
 // given list of columns.
 //
-// It takes two parameters: 'columns' - a slice of strings representing
-// all available columns, and 'selectedCols' - a slice of strings
-// representing the columns that are selected.
+// It takes two parameters:
+//   - 'columns' a slice of strings representing all available columns, and
+//   - 'selectedCols' - a slice of strings representing the columns that are selected.
 //
 // The function iterates over the 'columns' slice, checks if each column
 // exists in the 'selectedCols' slice, and if found, appends the index
