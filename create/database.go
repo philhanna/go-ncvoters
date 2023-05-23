@@ -3,6 +3,7 @@ package create
 import (
 	"database/sql"
 	"encoding/csv"
+	"fmt"
 	"io"
 	"log"
 )
@@ -99,9 +100,10 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 
 		count++
 		if count%progressEvery == 0 {
-			log.Printf("%d records inserted", count)
+			fmt.Printf("%d records added\r", count)
 		}
 	}
+	fmt.Print()
 
 	err = tx.Commit()
 	if err != nil {
