@@ -25,6 +25,7 @@ package main
 
 import (
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/philhanna/go-ncvoters/download"
 	"github.com/philhanna/go-ncvoters/ncvoters"
 	"github.com/philhanna/go-ncvoters/util"
 	"log"
@@ -55,7 +56,7 @@ func main() {
 	if reuse {
 		log.Println("Reusing existing zip file")
 	} else {
-		err = ncvoters.DownloadFile(zipURL, zipFileName)
+		err = download.DownloadFile(zipURL, zipFileName)
 		if err != nil {
 			log.Fatal("Failed to download the zip file:", err)
 		}
