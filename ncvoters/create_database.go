@@ -3,12 +3,8 @@ package ncvoters
 import (
 	"archive/zip"
 	"database/sql"
-
-	// "encoding/csv"
 	"fmt"
-	// "io"
 	"log"
-	// "os"
 	"strings"
 )
 
@@ -46,53 +42,32 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 		return err
 	}
 	defer stmt.Close()
-
-	// Open the zip file
-	zipFile, err := zip.OpenReader(zipFileName)
+	
+	// Get the zip file entry for the embedded CSV file
+	zipEntry, err := GetZipEntry(zipFileName, csvFileName)
 	if err != nil {
-		log.Println(err)
-		return err
-	}
-	defer zipFile.Close()
-
-	// Find the CSV file in the zip archive
-	var csvFile *zip.File
-	for _, file := range zipFile.File {
-		if file.Name == csvFileName {
-			csvFile = file
-			break
-		}
-	}
-
-	// If the CSV file is not found, exit with an error
-	if csvFile == nil {
-		err = fmt.Errorf("file %q not found in zip archive", csvFileName)
 		log.Println(err)
 		return err
 	}
 
 	// Open the CSV file inside the archive
-	csvReader, err := csvFile.Open()
+	csvReader, err := zipEntry.Open()
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 	defer csvReader.Close()
+	
 	/*
-		// Read the CSV file into a byte buffer
-
-
-
-
-
-		csvFile, err := os.Open(csvFileName)
-		if err != nil {
-			log.Println(err)
-			return err
-		}
-		defer csvFile.Close()
-
-		reader := csv.NewReader(csvFile)
+	
+	zipEntry, err = os.Open(csvFileName)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	defer zipEntry.Close()
+	
+	reader := csv.NewReader(csvFile)
 		reader.FieldsPerRecord = -1 // Allow varying number of fields
 
 		columns, err := reader.Read()
@@ -139,6 +114,36 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 	*/
 	log.Println("Database created successfully!")
 	return nil
+}
+
+// GetZipEntry gets a pointer to the embedded CSV file.
+func GetZipEntry(zipFileName string, entryName string) (*zip.File, error) {
+	
+	// Open the zip file
+	zipFile, err := zip.OpenReader(zipFileName)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	defer zipFile.Close()
+	
+	// Find the CSV file in the zip archive
+	var zipEntry *zip.File
+	for _, file := range zipFile.File {
+		if file.Name == entryName {
+			zipEntry = file
+			break
+		}
+	}
+	
+	// If the CSV file is not found, exit with an error
+	if zipEntry == nil {
+		err = fmt.Errorf("file %q not found in zip archive", entryName)
+		log.Println(err)
+		return nil, err
+	}
+
+	return zipEntry, nil
 }
 
 // CreateInsertSQL creates an SQL string that can be used for inserting
