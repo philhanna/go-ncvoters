@@ -1,4 +1,4 @@
 *.swp
 *.zip
 *.db
-*.db-journal
+voter_data.db-journal
