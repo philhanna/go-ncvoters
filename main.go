@@ -20,12 +20,33 @@ import (
 )
 
 const (
-	zipURL        = "http://example.com/path/to/your/zipfile.zip"
-	zipFileName   = "voter_data.zip"
-	csvFileName   = "voter_data.csv"
-	dbFileName    = "voter_data.db"
-	selectedCols  = "column1, column2, column3" // Replace with your desired column names
-	progressEvery = 10000                       // Log progress every n records
+	zipURL       = "https://s3.amazonaws.com/dl.ncsbe.gov/data/ncvoter_Statewide.zip"
+	zipFileName  = "voter_data.zip"
+	csvFileName  = "voter_data.csv"
+	dbFileName   = "voter_data.db"
+	selectedCols = `
+county_id,
+voter_reg_num,
+last_name,
+first_name,
+middle_name,
+name_suffix_lbl,
+status_cd,
+reason_cd,
+res_street_address,
+res_city_desc,
+state_cd,
+zip_code,
+full_phone_number,
+race_code,
+ethnic_code,
+party_cd,
+gender_code,
+birth_year,
+age_at_year_end,
+birth_state
+`
+	progressEvery = 10000 // Log progress every n records
 )
 
 func main() {
