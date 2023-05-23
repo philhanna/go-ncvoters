@@ -16,6 +16,7 @@ func CreateDatabase(csvFileName, dbFileName string, progressEvery int) error {
 	// Open the database
 	db, err := sql.Open("sqlite3", dbFileName)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 	defer db.Close()
@@ -23,6 +24,7 @@ func CreateDatabase(csvFileName, dbFileName string, progressEvery int) error {
 	// Begin a transaction
 	tx, err := db.Begin()
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
@@ -30,6 +32,7 @@ func CreateDatabase(csvFileName, dbFileName string, progressEvery int) error {
 	query := CreateDDL()
 	_, err = tx.Exec(query)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
@@ -37,12 +40,14 @@ func CreateDatabase(csvFileName, dbFileName string, progressEvery int) error {
 	// table
 	stmt, err := CreatePreparedStatement(tx)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 	defer stmt.Close()
 
 	csvFile, err := os.Open(csvFileName)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 	defer csvFile.Close()
@@ -52,6 +57,7 @@ func CreateDatabase(csvFileName, dbFileName string, progressEvery int) error {
 
 	columns, err := reader.Read()
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
@@ -73,8 +79,10 @@ func CreateDatabase(csvFileName, dbFileName string, progressEvery int) error {
 	for {
 		record, err := reader.Read()
 		if err == io.EOF {
+			log.Println(err)
 			break
 		} else if err != nil {
+			log.Println(err)
 			return err
 		}
 
@@ -83,12 +91,11 @@ func CreateDatabase(csvFileName, dbFileName string, progressEvery int) error {
 			values[i] = record[idx]
 		}
 
-		/*
-			_, err = stmt.Exec(values...)
-			if err != nil {
-				return err
-			}
-		*/
+		_, err = stmt.Exec(values...)
+		if err != nil {
+			log.Println(err)
+			return err
+		}
 
 		count++
 		if count%progressEvery == 0 {
@@ -98,6 +105,7 @@ func CreateDatabase(csvFileName, dbFileName string, progressEvery int) error {
 
 	err = tx.Commit()
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
