@@ -35,7 +35,7 @@ func main() {
 	const (
 		zipURL        = "https://s3.amazonaws.com/dl.ncsbe.gov/data/ncvoter_Statewide.zip"
 		zipFileName   = "voter_data.zip"
-		csvFileName   = "voter_data.csv"
+		csvFileName   = "ncvoter_Statewide.txt"
 		dbFileName    = "voter_data.db"
 		progressEvery = 10000 // Log progress every n records
 	)
