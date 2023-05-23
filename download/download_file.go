@@ -67,7 +67,7 @@ func DownloadFile(url, fileName string) error {
 	// Read from the response body and write to the file using the byte buffer
 	stime := time.Now()
 	for {
-		
+
 		// Read bytes from the response body into the buffer
 		n, err := resp.Body.Read(buffer)
 		if err != nil && err != io.EOF {
@@ -90,7 +90,7 @@ func DownloadFile(url, fileName string) error {
 			}
 			progress.LastPercent = percent
 		}
-		
+
 		// Write the bytes from the buffer to the file
 		_, err = file.Write(buffer[:n])
 		if err != nil {

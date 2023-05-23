@@ -13,7 +13,7 @@ func TestCreateInsertSQL(t *testing.T) {
 		want string
 	}{
 		{"Three columns", []string{"name", "rank", "serial_number"},
-		"INSERT INTO voters (name,rank,serial_number) VALUES (?,?,?)"},
+			"INSERT INTO voters (name,rank,serial_number) VALUES (?,?,?)"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

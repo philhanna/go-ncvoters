@@ -63,7 +63,7 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 	csvReader := csv.NewReader(f)
 	csvReader.Comma = '\t'
 	csvReader.FieldsPerRecord = -1 // Allow varying number of fields
- 
+
 	// Get the column names.
 	colNames, err := csvReader.Read()
 	if err != nil {
