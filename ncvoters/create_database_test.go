@@ -1,6 +1,8 @@
 package ncvoters
 
 import (
+	"archive/zip"
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -45,6 +47,33 @@ func TestGetSelectedIndices(t *testing.T) {
 			want := tt.want
 			have := GetSelectedIndices(all, tt.subset)
 			assert.Equal(t, want, have)
+		})
+	}
+}
+
+func TestGetZipEntry(t *testing.T) {
+	type args struct {
+		zipFileName string
+		entryName   string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *zip.File
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetZipEntry(tt.args.zipFileName, tt.args.entryName)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetZipEntry() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetZipEntry() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }
