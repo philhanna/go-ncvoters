@@ -38,7 +38,7 @@ func main() {
 		zipFileName   = "voter_data.zip"
 		csvFileName   = "ncvoter_Statewide.txt"
 		dbFileName    = "voter_data.db"
-		progressEvery = 10000 // Log progress every n records
+		progressEvery = 100_000 // Log progress every n records
 	)
 
 	var err error
