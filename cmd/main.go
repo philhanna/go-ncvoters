@@ -62,7 +62,7 @@ func main() {
 	}
 
 	// Create the database
-	err = ncvoters.CreateDatabase(csvFileName, dbFileName, progressEvery)
+	err = ncvoters.CreateDatabase(zipFileName, csvFileName, dbFileName, progressEvery)
 	if err != nil {
 		log.Fatal("Failed to create the database:", err)
 	}
