@@ -92,6 +92,7 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 				record[idx] = Sanitize(record[idx])
 			}
 		}
+
 		// Choose just the columns we want
 		values := make([]interface{}, len(selectedIndices))
 		for i, idx := range selectedIndices {
@@ -109,6 +110,9 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 		if count%progressEvery == 0 {
 			fmt.Printf("%d records added\r", count)
 		}
+		if count > 1_000_000 {
+			break
+		}
 	}
 	fmt.Print()
 
@@ -119,13 +123,15 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 	}
 
 	// Now copy to the real database on disk
-	sql := fmt.Sprintf(`ATTACH DATABASE %s AS diskdb;`, dbFileName)
+	log.Println("Attaching physical database...")
+	sql := fmt.Sprintf(`ATTACH DATABASE %q AS diskdb;`, dbFileName)
 	_, err = db.Exec(sql)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
+	log.Println("Copying voters table...")
 	sql = `CREATE TABLE diskdb.voters AS SELECT * FROM voters;`
 	_, err = db.Exec(sql)
 	if err != nil {
@@ -133,6 +139,7 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 		return err
 	}
 
+	log.Println("Detaching physical database...")
 	sql = `DETACH DATABASE diskdb;`
 	_, err = db.Exec(sql)
 	if err != nil {
