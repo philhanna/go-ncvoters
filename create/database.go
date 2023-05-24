@@ -6,11 +6,14 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"time"
 )
 
 // CreateDatabase is the mainline for creating a database from the zip file.
 func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery int) error {
 	log.Println("Creating database...")
+
+	stime := time.Now()
 
 	// Open the database
 	db, err := sql.Open("sqlite3", ":memory:")
@@ -110,9 +113,6 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 		if count%progressEvery == 0 {
 			fmt.Printf("%d records added\r", count)
 		}
-		if count > 1_000_000 {
-			break
-		}
 	}
 	fmt.Print()
 
@@ -147,6 +147,6 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 		return err
 	}
 
-	log.Println("Database created successfully!")
+	log.Printf("Database created successfully in %v\n", time.Since(stime))
 	return nil
 }
