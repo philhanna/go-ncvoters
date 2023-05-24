@@ -86,11 +86,12 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 			return err
 		}
 
-		// Clean up the entries that have sloppy spaces
-		for _, idx := range sanitizeIndices {
-			record[idx] = Sanitize(record[idx])
+		if false {
+			// Clean up the entries that have sloppy spaces
+			for _, idx := range sanitizeIndices {
+				record[idx] = Sanitize(record[idx])
+			}
 		}
-
 		// Choose just the columns we want
 		values := make([]interface{}, len(selectedIndices))
 		for i, idx := range selectedIndices {
