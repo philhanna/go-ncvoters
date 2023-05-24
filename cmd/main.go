@@ -48,8 +48,7 @@ func main() {
 
 	// Download or reuse the voter zip file
 	reuse := false
-	if util.FileExists(zipFileName) {
-		// TODO check for whether the zip file is complete
+	if util.FileExists(zipFileName) && util.IsGoodZipFile(zipFileName) {
 		reuse = true
 	}
 
