@@ -5,13 +5,17 @@ import (
 	"strings"
 )
 
+var sanitize_regexp *regexp.Regexp
+func init() {
+	sanitize_regexp = regexp.MustCompile(`\s+`)
+}
+
 // Sanitize takes a string parameter and returns a modified string by replacing
 // multiple consecutive whitespace characters with a single space, and trimming
 // leading and trailing whitespace.
 func Sanitize(input string) string {
 	// Replace multiple consecutive whitespace characters with a single space
-	regex := regexp.MustCompile(`\s+`)
-	sanitized := regex.ReplaceAllString(input, " ")
+	sanitized := sanitize_regexp.ReplaceAllString(input, " ")
 
 	// Trim leading and trailing whitespace
 	sanitized = strings.TrimSpace(sanitized)
