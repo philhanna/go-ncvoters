@@ -10,7 +10,7 @@ import (
 )
 
 // CreateDatabase is the mainline for creating a database from the zip file.
-func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery int) error {
+func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int) error {
 	log.Println("Creating database...")
 
 	stime := time.Now()
@@ -48,7 +48,7 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 	defer stmt.Close()
 
 	// Get the zip file entry for the embedded CSV file
-	zipEntry, err := GetZipEntry(zipFileName, csvFileName)
+	zipEntry, err := GetZipEntry(zipFileName, entryName)
 	if err != nil {
 		log.Println(err)
 		return err

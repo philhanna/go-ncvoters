@@ -24,21 +24,27 @@
 package main
 
 import (
+	"log"
+	"os"
+	"path/filepath"
+
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/philhanna/go-ncvoters/create"
 	"github.com/philhanna/go-ncvoters/download"
 	"github.com/philhanna/go-ncvoters/util"
-	"log"
 )
 
 func main() {
 
 	const (
 		zipURL        = "https://s3.amazonaws.com/dl.ncsbe.gov/data/ncvoter_Statewide.zip"
-		zipFileName   = "voter_data.zip"
-		csvFileName   = "ncvoter_Statewide.txt"
-		dbFileName    = "voter_data.db"
+		entryName     = "ncvoter_Statewide.txt"
 		progressEvery = 100_000 // Log progress every n records
+	)
+
+	var (
+		zipFileName = filepath.Join(os.TempDir(), "voter_data.zip")
+		dbFileName  = filepath.Join(os.TempDir(), "voter_data.db")
 	)
 
 	var err error
@@ -62,7 +68,7 @@ func main() {
 	}
 
 	// Create the database
-	err = create.CreateDatabase(zipFileName, csvFileName, dbFileName, progressEvery)
+	err = create.CreateDatabase(zipFileName, entryName, dbFileName, progressEvery)
 	if err != nil {
 		log.Fatal("Failed to create the database:", err)
 	}
