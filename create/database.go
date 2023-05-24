@@ -13,7 +13,7 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 	log.Println("Creating database...")
 
 	// Open the database
-	db, err := sql.Open("sqlite3", dbFileName)
+	db, err := sql.Open("sqlite3", ":memory:")
 	if err != nil {
 		log.Println(err)
 		return err
@@ -117,6 +117,29 @@ func CreateDatabase(zipFileName, csvFileName, dbFileName string, progressEvery i
 		log.Println(err)
 		return err
 	}
+
+	// Now copy to the real database on disk
+	sql := fmt.Sprintf(`ATTACH DATABASE %s AS diskdb;`, dbFileName)
+	_, err = db.Exec(sql)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	sql = `CREATE TABLE diskdb.voters AS SELECT * FROM voters;`
+	_, err = db.Exec(sql)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	sql = `DETACH DATABASE diskdb;`
+	_, err = db.Exec(sql)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
 	log.Println("Database created successfully!")
 	return nil
 }
