@@ -6,6 +6,7 @@ import (
 )
 
 var sanitize_regexp *regexp.Regexp
+
 func init() {
 	sanitize_regexp = regexp.MustCompile(`\s+`)
 }
@@ -21,4 +22,15 @@ func Sanitize(input string) string {
 	sanitized = strings.TrimSpace(sanitized)
 
 	return sanitized
+}
+
+// IsSanitizeCol returns true if the specifed column name is found in
+// the list of columns that need to be sanitized.
+func IsSanitizeCol(colName string) bool {
+	for _, san := range sanitizeCols {
+		if colName == san {
+			return true
+		}
+	}
+	return false
 }
