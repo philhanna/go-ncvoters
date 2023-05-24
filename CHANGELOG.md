@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog].
 	
 ## [Unreleased]
 
+### Added
+- Issue#3 - Performance improvements
+  
+### Bug fixes
+- Issue#8 - duplicate records being created
+
+
 ## [v1.0.0-rc1] - 2023-05-23
 Release candidate 1
 
