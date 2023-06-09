@@ -109,8 +109,9 @@ func NewLayout(body io.Reader) *Layout {
 		inch <- fsm.Event[string](line)
 		state = <-ouch
 	}
-	log.Printf("Final state is %v\n", state)
-
+	if machine.Trace {
+		log.Printf("Final state is %v\n", state)
+	}
 	return layout
 }
 
