@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
 	"strings"
 	"time"
 
+	"github.com/philhanna/commas"
 	goncvoters "github.com/philhanna/go-ncvoters"
 	"github.com/philhanna/go-ncvoters/util"
 )
@@ -124,8 +126,9 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 				s += "."
 			}
 			if percent > progress.LastPercent {
-				fmt.Printf("Percent complete: %d%%, [%-s] %d records added in %v\r",
-					percent, s, progress.SoFar, time.Since(stime))
+				countWithCommas := commas.Format(progress.SoFar)
+				fmt.Printf("Percent complete: %d%%, [%-s] %s records added in %v\r",
+					percent, s, countWithCommas, time.Since(stime))
 			}
 			progress.LastPercent = percent
 
@@ -140,6 +143,11 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 	}
 
 	// Now copy to the real database on disk
+	if util.FileExists(dbFileName) {
+		log.Printf("Deleting existing disk database %s\n", dbFileName)
+		os.Remove(dbFileName)
+	}
+
 	log.Println("Attaching physical database...")
 	sql := fmt.Sprintf(`ATTACH DATABASE %q AS diskdb;`, dbFileName)
 	_, err = db.Exec(sql)
