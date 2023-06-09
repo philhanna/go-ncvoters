@@ -27,9 +27,9 @@ func NewColumn(line string) Column {
 	re := regexp.MustCompile(`\s+`)
 	tokens := re.Split(line, 3)
 	column := Column{
-		Name:        tokens[0],
-		DataType:    tokens[1],
-		Description: tokens[2],
+		Name:        strings.Trim(tokens[0], " "),
+		DataType:    strings.Trim(tokens[1], " "),
+		Description: strings.Trim(tokens[2], " "),
 	}
 	return column
 }
