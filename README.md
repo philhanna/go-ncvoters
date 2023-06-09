@@ -2,6 +2,9 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/philhanna/go-ncvoters)][idGoReportCard]
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/philhanna/go-ncvoters)][idPkgGoDev]
 
+## TODO
+- Document installation in this file
+  
 ## References
 - [Github repository](https://github.com/philhanna/go-ncvoters)
 - [NC Board of Elections](https://www.ncsbe.gov/)
