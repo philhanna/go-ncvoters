@@ -18,7 +18,7 @@ func TestNewLayout(t *testing.T) {
 	reader := strings.NewReader(body)
 	layout := NewLayout(reader)
 	assert.Equal(t, 67, len(layout.GetColumns()))
-	if false {
+	if true {
 		for i, column := range layout.GetColumns() {
 			fmt.Printf("%d: %v\n", i, column)
 		}
