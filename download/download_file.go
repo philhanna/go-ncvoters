@@ -8,18 +8,9 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/philhanna/go-ncvoters/util"
 )
-
-// ---------------------------------------------------------------------
-// Type definitions
-// ---------------------------------------------------------------------
-
-// Progress is a custom writer that tracks the progress of the download
-type Progress struct {
-	Total       int64
-	Downloaded  int64
-	LastPercent int
-}
 
 // ---------------------------------------------------------------------
 // Functions
@@ -33,17 +24,15 @@ func DownloadFile(url, fileName string) error {
 		BLOCK_SIZE = MEGABYTE
 	)
 
-	var (
-		err      error
-		progress Progress
-	)
+	var err error
 
 	length, err := GetContentLength(url)
 	if err != nil {
 		return err
 	}
+	progress := util.NewProgress()
 	progress.Total = length
-	progress.Downloaded = 0
+	progress.SoFar = 0
 	progress.LastPercent = 0
 
 	mb := float64(progress.Total) / float64(MEGABYTE)
@@ -76,15 +65,15 @@ func DownloadFile(url, fileName string) error {
 		if n <= 0 {
 			break
 		}
-		progress.Downloaded += int64(n)
-		percent := int(float64(progress.Downloaded) / float64(progress.Total) * 100)
+		progress.SoFar += int64(n)
+		percent := int(float64(progress.SoFar) / float64(progress.Total) * 100)
 		if percent != progress.LastPercent {
 			s := strings.Repeat("*", percent/2)
 			for len(s) < 50 {
 				s += "."
 			}
 			if percent > progress.LastPercent {
-				mb := float64(progress.Downloaded) / float64(MEGABYTE)
+				mb := float64(progress.SoFar) / float64(MEGABYTE)
 				fmt.Printf("Percent complete: %d%%, [%-s] %.2fMB in %v\r",
 					percent, s, mb, time.Since(stime))
 			}
@@ -106,4 +95,8 @@ func DownloadFile(url, fileName string) error {
 	fmt.Println()
 	log.Println("File downloaded successfully!")
 	return nil
+}
+
+func NewProgress() {
+	panic("unimplemented")
 }

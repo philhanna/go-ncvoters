@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"strings"
 	"time"
 
 	goncvoters "github.com/philhanna/go-ncvoters"
+	"github.com/philhanna/go-ncvoters/util"
 )
 
 // CreateDatabase is the mainline for creating a database from the zip file.
@@ -69,7 +71,7 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 	csvReader.Comma = '\t'
 	csvReader.FieldsPerRecord = -1 // Allow varying number of fields
 
-	// Get the column names.
+	// Get the column names
 	colNames, err := csvReader.Read()
 	if err != nil {
 		log.Println(err)
@@ -79,7 +81,11 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 	selectedIndices := GetSelectedIndices(colNames, selectedNames)
 
 	// Read from the CSV reader and insert records into the database
-	count := 0
+	progress := util.NewProgress()
+	progress.Total = 8_300_367 // TODO get exact number from reading CSV file
+	progress.SoFar = 0
+	progress.LastPercent = 0
+
 	for {
 
 		// Read the next record
@@ -110,9 +116,19 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 			return err
 		}
 
-		count++
-		if count%progressEvery == 0 {
-			fmt.Printf("%d records added\r", count)
+		progress.SoFar++
+		percent := int(float64(progress.SoFar) / float64(progress.Total) * 100)
+		if percent > progress.LastPercent {
+			s := strings.Repeat("*", percent/2)
+			for len(s) < 50 {
+				s += "."
+			}
+			if percent > progress.LastPercent {
+				fmt.Printf("Percent complete: %d%%, [%-s] %d records added in %v\r",
+					percent, s, progress.SoFar, time.Since(stime))
+			}
+			progress.LastPercent = percent
+
 		}
 	}
 	fmt.Print()
