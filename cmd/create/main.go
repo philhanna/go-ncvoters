@@ -53,7 +53,7 @@ func main() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
 	log.Println("Starting voter database creation")
-	
+
 	// Download or reuse the voter zip file
 	reuse := false
 	if util.FileExists(zipFileName) && util.IsGoodZipFile(zipFileName) {
