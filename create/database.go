@@ -7,6 +7,8 @@ import (
 	"io"
 	"log"
 	"time"
+
+	goncvoters "github.com/philhanna/go-ncvoters"
 )
 
 // CreateDatabase is the mainline for creating a database from the zip file.
@@ -73,7 +75,8 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 		log.Println(err)
 		return err
 	}
-	selectedIndices := GetSelectedIndices(colNames, selectedCols)
+	selectedNames := goncvoters.Configuration.GetColumnNames()
+	selectedIndices := GetSelectedIndices(colNames, selectedNames)
 
 	// Read from the CSV reader and insert records into the database
 	count := 0

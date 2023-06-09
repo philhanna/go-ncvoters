@@ -6,4 +6,4 @@ updated every Saturday.
 
 See the README.md for details.
 */
-package main
+package goncvoters

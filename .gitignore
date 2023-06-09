@@ -1,4 +1,4 @@
 *.swp
 *.zip
-*.db
-voter_data.db-journal
+!testdata/*.zip
+.vscode/
