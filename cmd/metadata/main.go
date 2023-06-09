@@ -1,15 +1,18 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 
 	"github.com/philhanna/go-ncvoters/webdata"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // ---------------------------------------------------------------------
@@ -29,7 +32,7 @@ const (
 // Variables
 // ---------------------------------------------------------------------
 
-var outputFile string
+var dbName string
 
 // ---------------------------------------------------------------------
 // Functions
@@ -37,19 +40,20 @@ var outputFile string
 
 func main() {
 
-	const USAGE = `usage: layout [OPTION]
+	const USAGE = `usage: metadata [OPTION]
 
-Creates the layout tables for the NCVoter database, using the latest
-layout from the Board of Elections website.
+Creates the metadata tables for the North Carolina voter registration
+database, using the latest layout from the Board of Elections website.
 
 options:
-  -h, --help               Displays this help text and exits
-  -o, --output             Output file name. If not specified, uses stdout
+  -h, --help               Displays this help text and exits.
+  -o, --output             Output database name. If not specified,
+                           uses "metadata.db" in the temp directory.
 `
 
 	// Handle the command line options
-	flag.StringVar(&outputFile, "o", "", "Output file name")
-	flag.StringVar(&outputFile, "output", "", "Output file name")
+	flag.StringVar(&dbName, "o", "", "Output file name")
+	flag.StringVar(&dbName, "output", "", "Output file name")
 	flag.Usage = func() {
 		fmt.Fprint(os.Stderr, USAGE)
 	}
@@ -66,23 +70,39 @@ options:
 	p := webdata.NewLayout(resp.Body)
 
 	// Open the output fp
-	fp := os.Stdout
-	if outputFile != "" {
-		fp, err = os.Create(outputFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer fp.Close()
+	if dbName == "" {
+		dbName = filepath.Join(os.TempDir(), "metadata.db")
 	}
 
-	createAllColumns(p, fp)
-	createStatusCodes(p, fp)
-	createRaceCodes(p, fp)
-	createEthnicCodes(p, fp)
-	createCountyCodes(p, fp)
+	// Start building the DDL string
+	sb := strings.Builder{}
+	sb.WriteString(createColumns(p))
+	sb.WriteString(createStatusCodes(p))
+	sb.WriteString(createRaceCodes(p))
+	sb.WriteString(createEthnicCodes(p))
+	sb.WriteString(createCountyCodes(p))
+	ddl := sb.String()
+
+	// Open a connection to the database file
+	db, err := sql.Open("sqlite3", dbName)
+	if err != nil {
+		fmt.Println("Error opening database:", err)
+		return
+	}
+	defer db.Close()
+
+	// Execute the DDL statement
+	_, err = db.Exec(ddl)
+	if err != nil {
+		log.Println("Error creating table:", err)
+		return
+	}
+
+	log.Printf("Metadata databse created in %s\n", dbName)
 }
 
-func createAllColumns(p *webdata.Layout, fp *os.File) {
+// Creates DDL to create and load data into the columns table
+func createColumns(p *webdata.Layout) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_COLUMNS))
@@ -101,11 +121,10 @@ func createAllColumns(p *webdata.Layout, fp *os.File) {
 		parts = append(parts, stmt)
 	}
 	parts = append(parts, "COMMIT;")
-	s := strings.Join(parts, "\n") + "\n"
-	fmt.Fprintln(fp, s)
+	return strings.Join(parts, "\n") + "\n"
 }
 
-func createStatusCodes(p *webdata.Layout, fp *os.File) {
+func createStatusCodes(p *webdata.Layout) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_STATUS_CODES))
@@ -135,12 +154,11 @@ func createStatusCodes(p *webdata.Layout, fp *os.File) {
 	// Write the commit
 	parts = append(parts, "COMMIT;")
 
-	// Create the whole string and print it
-	s := strings.Join(parts, "\n") + "\n"
-	fmt.Fprintln(fp, s)
+	// Create the whole string
+	return strings.Join(parts, "\n") + "\n"
 }
 
-func createRaceCodes(p *webdata.Layout, fp *os.File) {
+func createRaceCodes(p *webdata.Layout) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_RACE_CODES))
@@ -170,12 +188,11 @@ func createRaceCodes(p *webdata.Layout, fp *os.File) {
 	// Write the commit
 	parts = append(parts, "COMMIT;")
 
-	// Create the whole string and print it
-	s := strings.Join(parts, "\n") + "\n"
-	fmt.Fprintln(fp, s)
+	// Create the whole string
+	return strings.Join(parts, "\n") + "\n"
 }
 
-func createEthnicCodes(p *webdata.Layout, fp *os.File) {
+func createEthnicCodes(p *webdata.Layout) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_ETHNIC_CODES))
@@ -205,12 +222,11 @@ func createEthnicCodes(p *webdata.Layout, fp *os.File) {
 	// Write the commit
 	parts = append(parts, "COMMIT;")
 
-	// Create the whole string and print it
-	s := strings.Join(parts, "\n") + "\n"
-	fmt.Fprintln(fp, s)
+	// Create the whole string
+	return strings.Join(parts, "\n") + "\n"
 }
 
-func createCountyCodes(p *webdata.Layout, fp *os.File) {
+func createCountyCodes(p *webdata.Layout) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_COUNTY_CODES))
@@ -241,6 +257,5 @@ func createCountyCodes(p *webdata.Layout, fp *os.File) {
 	parts = append(parts, "COMMIT;")
 
 	// Create the whole string and print it
-	s := strings.Join(parts, "\n") + "\n"
-	fmt.Fprintln(fp, s)
+	return strings.Join(parts, "\n") + "\n"
 }
