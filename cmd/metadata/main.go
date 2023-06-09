@@ -11,8 +11,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/philhanna/go-ncvoters/webdata"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/philhanna/go-ncvoters/webdata"
 )
 
 // ---------------------------------------------------------------------
