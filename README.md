@@ -1,15 +1,19 @@
 # go-ncvoters
 [![Go Report Card](https://goreportcard.com/badge/github.com/philhanna/go-ncvoters)][idGoReportCard]
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/philhanna/go-ncvoters)][idPkgGoDev]
-
-## TODO
-- Document installation in this file
   
 ## References
 - [Github repository](https://github.com/philhanna/go-ncvoters)
 - [NC Board of Elections](https://www.ncsbe.gov/)
 - [File layout](https://s3.amazonaws.com/dl.ncsbe.gov/data/layout_ncvoter.txt)
 - [SQLite home page](https://sqlite.org/index.html)
+
+## Installation
+1. Ensure that you have Go installed.  See [https://go.dev/doc/install](https://go.dev/doc/install)
+for instructions.
+2. Go to the Github repository at
+[https://github.com/philhanna/go-ncvoters](https://github.com/philhanna/go-ncvoters).
+You will see a green button labeled "Code".  Open this and click the "
 
 ## Overview
 Downloads selected columns from the NC voter registration data at the NC Board
@@ -121,7 +125,7 @@ name                       data type          description
 66: vtd_desc                varchar(60)        Voter tabulation district name
 ------------------------------------------------------------------------------------
 ```
-See the `selectedCols` variable in `create/selected_cols.go` for a list of what
+See `selected_columns` in the sample configuration YAML file for a list of what
 I selected as the columns of interest.  You can change this by adding or
 deleting lines.
 
