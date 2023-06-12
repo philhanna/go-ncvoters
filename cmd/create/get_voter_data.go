@@ -59,7 +59,6 @@ func main() {
 	if util.FileExists(zipFileName) && util.IsGoodZipFile(zipFileName) {
 		reuse = true
 	}
-
 	if reuse {
 		log.Println("Reusing existing zip file")
 	} else {
