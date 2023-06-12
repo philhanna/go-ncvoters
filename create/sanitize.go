@@ -22,7 +22,7 @@ func Sanitize(input string) string {
 	return sanitized
 }
 
-// IsSanitizeCol returns true if the specifed column name is found in
+// IsSanitizeCol returns true if the specified column name is found in
 // the list of columns that need to be sanitized.
 func IsSanitizeCol(colName string) bool {
 	colNames := goncvoters.Configuration.GetSanitizeColumns()
