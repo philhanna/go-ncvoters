@@ -1,21 +1,18 @@
 # go-ncvoters
 [![Go Report Card](https://goreportcard.com/badge/github.com/philhanna/go-ncvoters)][idGoReportCard]
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/philhanna/go-ncvoters)][idPkgGoDev]
-  
-## References
-- [Github repository](https://github.com/philhanna/go-ncvoters)
-- [NC Board of Elections](https://www.ncsbe.gov/)
-- [File layout](https://s3.amazonaws.com/dl.ncsbe.gov/data/layout_ncvoter.txt)
-- [SQLite home page](https://sqlite.org/index.html)
 
-## Installation
-1. Ensure that you have Go installed.  See [https://go.dev/doc/install](https://go.dev/doc/install)
-for instructions.
-2. Go to the Github repository at
-[https://github.com/philhanna/go-ncvoters](https://github.com/philhanna/go-ncvoters).
-You will see a green button labeled "Code".  Open this and click the "
+## Contents:
+  - [Overview](#overview)
+    - [File layout](#file-layout)
+    - [Choosing the columns](#choosing-the-columns)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+  - [Running the application](#running-the-application)
+  - [References](#references)
 
 ## Overview
+<a id="overview"></a>
 Downloads selected columns from the NC voter registration data at the NC Board
 of Elections website and create an SQLite database file from it. The data is
 updated every Saturday.
@@ -25,7 +22,9 @@ file it contains is nearly 4GB, which can make it hard to manage.  Not all the
 columns may be of interest, so this script allows you to select a subset of
 columns.
 
-The CSV file is tab-delimited.  The layout is described in
+### File layout
+<a id="file-layout"></a>
+The file format is described at
 https://s3.amazonaws.com/dl.ncsbe.gov/data/layout_ncvoter.txt,
 which I summarize below:
 ```
@@ -46,7 +45,8 @@ which I summarize below:
 *            2) can be linked to ncvhis file by ncid
 ************************************************************************/
 ```
-## Choosing the columns
+### Choosing the columns
+<a id="choosing-the-columns"></a>
 
 Here are all the available columns:
 ```
@@ -129,9 +129,79 @@ See `selected_columns` in the sample configuration YAML file for a list of what
 I selected as the columns of interest.  You can change this by adding or
 deleting lines.
 
-## Running the application
+## Installation
+<a id="installation"></a>
+- Ensure that you have Go installed.  See [https://go.dev/doc/install](https://go.dev/doc/install)
+for instructions.
 
-There is a mainline in `cmd/main.go` that will run the overall application.
+- Go to the Github repository at
+[https://github.com/philhanna/go-ncvoters](https://github.com/philhanna/go-ncvoters).
+You will see a green button labeled "Code":
+Click the down arrow and in the resulting dialog box, click "Download ZIP",
+and unzip the resulting file in your home directory.
+![Code](https://github.com/philhanna/go-ncvoters/assets/3708685/d12883b8-8335-4c11-9db1-5f85ab8e0462)
+
+## Configuration
+<a id="configuration"></a>
+Create a subdirectory named `go-ncvoters` in your user configuration directory, which is:
+   - On Unix/Mac: `$HOME/.config/go-ncvoters`
+   - On Windows: `%USERPROFILE%\AppData\Roaming\go-ncvoters`
+  
+Copy `sample_config.yaml` to that directory, renaming it `config.yaml`.  There are two sections:
+
+```yaml
+selected_columns:
+  - county_id
+  - voter_reg_num
+  - last_name
+    ...
+  - age_at_year_end
+  - birth_state
+```
+This is where you specify the subset of the available columns described above that you
+want to be included in your local copy of the database.  Note that you need to indent
+each line in the list by two spaces (or a tab character)
+
+```yaml
+sanitize_columns:
+  - last_name
+  - first_name
+  - middle_name
+  - res_street_address
+  - res_city_desc
+```
+The `sanitize_columns` section is where you list the column names that need to be
+cleaned up - they may have sets of multiple whitespace characters that need to be
+replaced by a single space.
+
+Edit these two sections as you like to specify how to build your database.
+If you are not familiar with YAML, a good introductory page is
+[YAML tutorial](https://www.cloudbees.com/blog/yaml-tutorial-everything-you-need-get-started).
+
+## Running the application
+<a id="running-the-application"></a>
+
+There is a mainline in `cmd/get_voter_data.go` that will run the overall
+application.
+
+You can also compile a native executable by running the following command from
+the root directory of the project:
+
+```bash
+go install cmd/create/get_voter_data.go
+```
+
+This will create an executable in your path named `get_voter_data`, which you can invoke from a command line like any other program:
+
+```bash
+get_voter_data
+```  
+## References
+<a id="references"></a>
+- [Github repository](https://github.com/philhanna/go-ncvoters)
+- [NC Board of Elections](https://www.ncsbe.gov/)
+- [File layout](https://s3.amazonaws.com/dl.ncsbe.gov/data/layout_ncvoter.txt)
+- [SQLite home page](https://sqlite.org/index.html)
 
 [idGoReportCard]: https://goreportcard.com/report/github.com/philhanna/go-ncvoters
 [idPkgGoDev]: https://pkg.go.dev/github.com/philhanna/go-ncvoters
