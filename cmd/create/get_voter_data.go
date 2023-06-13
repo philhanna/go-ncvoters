@@ -24,6 +24,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -34,7 +36,60 @@ import (
 	"github.com/philhanna/go-ncvoters/util"
 )
 
+// ---------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------
+
+const Usage = `usage: get_voter_data [OPTIONS] [DBNAME]
+
+Creates a database of North Carolina voter registrations
+
+positional arguments:
+  dbname         Name of database file to be created (default /tmp/voter_data.db)
+
+options:
+  -h, --help     Show this help text and exit
+  -f, --force    Force the zip file to be downloaded, not reused
+
+  `
+
+// ---------------------------------------------------------------------
+// Variables
+// ---------------------------------------------------------------------
+
+var optForce bool
+var zipFileName = filepath.Join(os.TempDir(), "voter_data.zip")
+var dbFileName = filepath.Join(os.TempDir(), "voter_data.db")
+
+// ---------------------------------------------------------------------
+// Functions
+// ---------------------------------------------------------------------
+
+// Set the logging flags
+func init() {
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+}
+
+// Parse command line and run the application
 func main() {
+
+	// Parse the command line
+	flag.BoolVar(&optForce, "force", false, "Deletes the zipfile, if it exists")
+	flag.BoolVar(&optForce, "f", false, "Deletes the zipfile, if it exists")
+	flag.Usage = func() {
+		fmt.Fprint(os.Stderr, Usage)
+	}
+	flag.Parse()
+	if flag.NArg() > 0 {
+		dbFileName = flag.Arg(0)
+	}
+
+	// Run the database creation
+	run()
+}
+
+// Runs the application
+func run() {
 
 	const (
 		zipURL        = "https://s3.amazonaws.com/dl.ncsbe.gov/data/ncvoter_Statewide.zip"
@@ -42,15 +97,7 @@ func main() {
 		progressEvery = 100_000 // Log progress every n records
 	)
 
-	var (
-		zipFileName = filepath.Join(os.TempDir(), "voter_data.zip")
-		dbFileName  = filepath.Join(os.TempDir(), "voter_data.db")
-	)
-
 	var err error
-
-	// Set the logging flags
-	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
 	log.Println("Starting voter database creation")
 
@@ -59,8 +106,11 @@ func main() {
 	if util.FileExists(zipFileName) && util.IsGoodZipFile(zipFileName) {
 		reuse = true
 	}
+	if optForce {
+		reuse = false
+	}
 	if reuse {
-		log.Println("Reusing existing zip file")
+		log.Printf("Reusing existing zip file: %v\n", zipFileName)
 	} else {
 		err = download.DownloadFile(zipURL, zipFileName)
 		if err != nil {
