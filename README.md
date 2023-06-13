@@ -9,6 +9,7 @@
   - [Installation](#installation)
   - [Configuration](#configuration)
   - [Running the application](#running-the-application)
+  - [Viewing the database](#viewing-the-database)
   - [References](#references)
 
 ## Overview
@@ -188,20 +189,37 @@ You can also compile a native executable by running the following command from
 the root directory of the project:
 
 ```bash
-go install cmd/create/get_voter_data.go
+username@host:~$ go install cmd/create/get_voter_data.go
 ```
 
 This will create an executable in your path named `get_voter_data`, which you can invoke from a command line like any other program:
 
 ```bash
-get_voter_data
-```  
+username@host:~$ get_voter_data
+```
+This takes a little over two minutes on my Linux machine.
+
+## Viewing the database
+<a id="viewing-the-database"></a>
+I use [DB Browser for SQLite](https://sqlitebrowser.org/) to work with the database.
+It provides a very good user interface into the data and the table metadata.
+You can also run SQL queries from the UI to select subsets of the database in which
+you are interested.
+
+There is also a command-line tool named [sqlite3](https://sqlite.org/cli.html)
+that allows you to run queries and export data into CSV, JSON, HTML, and
+other formats.
+
+SQLite3 is also supported natively in the standard Python library.
+
 ## References
 <a id="references"></a>
 - [Github repository](https://github.com/philhanna/go-ncvoters)
 - [NC Board of Elections](https://www.ncsbe.gov/)
 - [File layout](https://s3.amazonaws.com/dl.ncsbe.gov/data/layout_ncvoter.txt)
 - [SQLite home page](https://sqlite.org/index.html)
+- [DB Browser for SQLite](https://sqlitebrowser.org/)
+- [SQLite system tables](https://www.techonthenet.com/sqlite/sys_tables/index.php)
 
 [idGoReportCard]: https://goreportcard.com/report/github.com/philhanna/go-ncvoters
 [idPkgGoDev]: https://pkg.go.dev/github.com/philhanna/go-ncvoters
