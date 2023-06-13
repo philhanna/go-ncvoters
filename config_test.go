@@ -7,5 +7,5 @@ import (
 
 func Test_newConfiguration(t *testing.T) {
 	configuration := *newConfiguration()
-	fmt.Printf("%v\n", configuration)
+	fmt.Printf("%#v\n", configuration)
 }
