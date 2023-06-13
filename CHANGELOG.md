@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog].
 	
 ## [Unreleased]
 
+## [v1.1.0] - 2023-06-12
+- Added command line options
+- Added installation and configuration instructions to `README.md`
+
 ## [v1.0.0] - 2023-06-12
 - First public release
 
@@ -23,7 +27,8 @@ Release candidate 1
 
 [Semantic Versioning]: http://semver.org
 [Keep a Changelog]: http://keepachangelog.com
-[Unreleased]: https://github.com/philhanna/go-ncvoters/compare/v1.0.0..HEAD
+[Unreleased]: https://github.com/philhanna/go-ncvoters/compare/v1.1.0..HEAD
+[v1.1.0]: https://github.com/philhanna/go-ncvoters/compare/v1.0.0..v1.1.0
 [v1.0.0]: https://github.com/philhanna/go-ncvoters/compare/v1.0.0-rc2..v1.0.0
 [v1.0.0-rc2]: https://github.com/philhanna/go-ncvoters/compare/v1.0.0-rc1..v1.0.0-rc2
 [v1.0.0-rc1]: https://github.com/philhanna/go-ncvoters/compare/a0324a5..v1.0.0-rc1
