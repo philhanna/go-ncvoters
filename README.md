@@ -182,7 +182,7 @@ If you are not familiar with YAML, a good introductory page is
 ## Running the application
 <a id="running-the-application"></a>
 
-There is a mainline in `cmd/get_voter_data.go` that will run the overall
+There is a mainline in `cmd/get_voter_data.go` that will run the download
 application.
 
 You can also compile a native executable by running the following command from
@@ -198,6 +198,16 @@ This will create an executable in your path named `get_voter_data`, which you ca
 username@host:~$ get_voter_data
 ```
 This takes a little over two minutes on my Linux machine.
+
+I generally run this every Saturday night, since the database is updated on the
+website that day. The database is built as `voter_data.db` in the `/tmp`
+directory (`%TEMP%`, on Windows).  I typically create a soft link to it in my home
+directory and the desktop for quick access.
+
+You need to delete the .zip file from `/tmp` before the next Saturday update,
+because the system will reuse the existing ZIP file if it exists.  You can do
+these delete and download steps in your [cron](https://en.wikipedia.org/wiki/Cron) table
+so that it is all done automatically every Saturday night.
 
 ## Viewing the database
 <a id="viewing-the-database"></a>
