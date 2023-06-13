@@ -189,13 +189,24 @@ You can also compile a native executable by running the following command from
 the root directory of the project:
 
 ```bash
-username@host:~$ go install cmd/create/get_voter_data.go
+$ go install cmd/create/get_voter_data.go
 ```
 
 This will create an executable in your path named `get_voter_data`, which you can invoke from a command line like any other program:
 
 ```bash
-username@host:~$ get_voter_data
+$ get_voter_data -h
+usage: get_voter_data [OPTIONS] [DBNAME]
+
+Creates a database of North Carolina voter registrations
+
+positional arguments:
+  dbname         Name of database file to be created (default /tmp/voter_data.db)
+
+options:
+  -h, --help     Show this help text and exit
+  -f, --force    Force the zip file to be downloaded, not reused
+
 ```
 This takes a little over two minutes on my Linux machine.
 
