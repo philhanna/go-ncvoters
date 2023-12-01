@@ -1,5 +1,3 @@
-// (Created with the assistance of ChatGPT)
-//
 // A Go program that addresses the requirements of optimizing
 // performance, memory usage, and disk space while downloading the zip
 // file, processing the CSV data, and creating an SQLite database.
