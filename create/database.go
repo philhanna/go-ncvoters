@@ -84,7 +84,7 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 
 	// Read from the CSV reader and insert records into the database
 	progress := util.NewProgress()
-	progress.Total = 8_300_367 // TODO get exact number from reading CSV file
+	progress.Total = 8_383_371 // TODO get exact number from reading CSV file
 	progress.SoFar = 0
 	progress.LastPercent = 0
 
