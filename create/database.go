@@ -16,56 +16,46 @@ import (
 )
 
 // CreateDatabase is the mainline for creating a database from the zip file.
-func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int) error {
+func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int) {
+
+	// Internal function for consistent error handling
+	handleError := func(err error) {
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	log.Println("Creating database...")
 
 	stime := time.Now()
 
 	// Open the database
 	db, err := sql.Open("sqlite3", ":memory:")
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	handleError(err)
 	defer db.Close()
 
 	// Begin a transaction
 	tx, err := db.Begin()
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	handleError(err)
 
 	// Create a table with selected columns
 	query := CreateDDL()
 	_, err = tx.Exec(query)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	handleError(err)
 
 	// Create a prepared statement for inserting records into the voters
 	// table.
 	stmt, err := CreatePreparedStatement(tx)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	handleError(err)
 	defer stmt.Close()
 
 	// Get the zip file entry for the embedded CSV file
 	zipEntry, err := GetZipEntry(zipFileName, entryName)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	handleError(err)
 
 	// Open the CSV file entry
 	f, err := zipEntry.Open()
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	handleError(err)
 	defer f.Close()
 
 	// Create a CSV csvReader over the zip file entry
@@ -75,10 +65,7 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 
 	// Get the column names
 	colNames, err := csvReader.Read()
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	handleError(err)
 	selectedNames := goncvoters.Configuration.GetColumnNames()
 	selectedIndices := GetSelectedIndices(colNames, selectedNames)
 
@@ -94,10 +81,8 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 		record, err := csvReader.Read()
 		if err == io.EOF {
 			break
-		} else if err != nil {
-			log.Println(err)
-			return err
 		}
+		handleError(err)
 
 		// Choose just the columns we want
 		values := make([]any, len(selectedIndices))
@@ -113,10 +98,7 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 
 		// Insert a record into the database
 		_, err = stmt.Exec(values...)
-		if err != nil {
-			log.Println(err)
-			return err
-		}
+		handleError(err)
 
 		progress.SoFar++
 		percent := int(float64(progress.SoFar) / float64(progress.Total) * 100)
@@ -136,11 +118,9 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 	}
 	fmt.Print()
 
+	// Commit the transaction
 	err = tx.Commit()
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	handleError(err)
 
 	// Now copy to the real database on disk
 	if util.FileExists(dbFileName) {
@@ -151,27 +131,17 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 	log.Println("Attaching physical database...")
 	sql := fmt.Sprintf(`ATTACH DATABASE %q AS diskdb;`, dbFileName)
 	_, err = db.Exec(sql)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	handleError(err)
 
 	log.Println("Copying voters table...")
 	sql = `CREATE TABLE diskdb.voters AS SELECT * FROM voters;`
 	_, err = db.Exec(sql)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	handleError(err)
 
 	log.Println("Detaching physical database...")
 	sql = `DETACH DATABASE diskdb;`
 	_, err = db.Exec(sql)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	handleError(err)
 
 	log.Printf("Database created successfully in %v\n", time.Since(stime))
-	return nil
 }

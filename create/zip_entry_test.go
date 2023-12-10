@@ -19,6 +19,6 @@ func TestGetZipEntry(t *testing.T) {
 
 	// Bad entry
 	entryName = "bogus"
-	fp, err = GetZipEntry(zipFileName, entryName)
+	_, err = GetZipEntry(zipFileName, entryName)
 	assert.NotNil(t, err)
 }

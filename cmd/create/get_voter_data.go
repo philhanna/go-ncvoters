@@ -117,10 +117,7 @@ func run() {
 	}
 
 	// Create the database
-	err = create.CreateDatabase(zipFileName, entryName, dbFileName, progressEvery)
-	if err != nil {
-		log.Fatal("Failed to create the database:", err)
-	}
+	create.CreateDatabase(zipFileName, entryName, dbFileName, progressEvery)
 
 	log.Println("Process completed successfully!")
 }
