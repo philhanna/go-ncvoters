@@ -7,7 +7,7 @@ import (
 )
 
 // Creates DDL to create and load data into the county table
-func CreateCountyCodesDDL(layout *Layout) string {
+func CreateCountyCodesDDL(countyCodes map[int]string) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_COUNTY_CODES))
@@ -18,14 +18,14 @@ func CreateCountyCodesDDL(layout *Layout) string {
 
 	// Sort the codes in alphabetical order
 	keys := []int{}
-	for key := range layout.CountyCodes {
+	for key := range countyCodes {
 		keys = append(keys, key)
 	}
 	sort.Ints(keys)
 
 	// Write the insert statements
 	for _, code := range keys {
-		value := layout.CountyCodes[code]
+		value := countyCodes[code]
 		stmt := fmt.Sprintf(`INSERT INTO %s VALUES(%d,'%s');`,
 			TABLE_COUNTY_CODES,
 			code,
