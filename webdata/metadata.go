@@ -35,22 +35,22 @@ func GetMetadataDDL() string {
 	defer resp.Body.Close()
 
 	// Parse the file into the data of interest
-	p := NewLayout(resp.Body)
+	layout := NewLayout(resp.Body)
 
 	// Start building the DDL string
 	sb := strings.Builder{}
-	sb.WriteString(CreateColumnsDDL(p))
-	sb.WriteString(CreateStatusCodesDDL(p))
-	sb.WriteString(CreateRaceCodesDDL(p))
-	sb.WriteString(CreateEthnicCodesDDL(p))
-	sb.WriteString(CreateCountyCodesDDL(p))
+	sb.WriteString(CreateColumnsDDL(layout))
+	sb.WriteString(CreateStatusCodesDDL(layout))
+	sb.WriteString(CreateRaceCodesDDL(layout))
+	sb.WriteString(CreateEthnicCodesDDL(layout))
+	sb.WriteString(CreateCountyCodesDDL(layout))
 	ddl := sb.String()
 
 	return ddl
 }
 
 // Creates DDL to create and load data into the columns table
-func CreateColumnsDDL(p *Layout) string {
+func CreateColumnsDDL(layout *Layout) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_COLUMNS))
@@ -59,7 +59,7 @@ func CreateColumnsDDL(p *Layout) string {
 	parts = append(parts, "  dataType       TEXT,")
 	parts = append(parts, "  description    TEXT")
 	parts = append(parts, `);`)
-	for _, column := range p.GetColumns() {
+	for _, column := range layout.GetColumns() {
 		stmt := fmt.Sprintf(`INSERT INTO %s VALUES('%s','%s','%s');`,
 			TABLE_COLUMNS,
 			column.Name,
@@ -73,7 +73,7 @@ func CreateColumnsDDL(p *Layout) string {
 }
 
 // Creates DDL to create and load data into the status_codes table
-func CreateStatusCodesDDL(p *Layout) string {
+func CreateStatusCodesDDL(layout *Layout) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_STATUS_CODES))
@@ -84,14 +84,14 @@ func CreateStatusCodesDDL(p *Layout) string {
 
 	// Sort the codes in alphabetical order
 	keys := []string{}
-	for key := range p.StatusCodes {
+	for key := range layout.StatusCodes {
 		keys = append(keys, key)
 	}
 	sort.Strings(keys)
 
 	// Write the insert statements
 	for _, code := range keys {
-		value := p.StatusCodes[code]
+		value := layout.StatusCodes[code]
 		stmt := fmt.Sprintf(`INSERT INTO %s VALUES('%s','%s');`,
 			TABLE_STATUS_CODES,
 			code,
@@ -108,7 +108,7 @@ func CreateStatusCodesDDL(p *Layout) string {
 }
 
 // Creates DDL to create and load data into the race_codes table
-func CreateRaceCodesDDL(p *Layout) string {
+func CreateRaceCodesDDL(layout *Layout) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_RACE_CODES))
@@ -119,14 +119,14 @@ func CreateRaceCodesDDL(p *Layout) string {
 
 	// Sort the codes in alphabetical order
 	keys := []string{}
-	for key := range p.RaceCodes {
+	for key := range layout.RaceCodes {
 		keys = append(keys, key)
 	}
 	sort.Strings(keys)
 
 	// Write the insert statements
 	for _, code := range keys {
-		value := p.RaceCodes[code]
+		value := layout.RaceCodes[code]
 		stmt := fmt.Sprintf(`INSERT INTO %s VALUES('%s','%s');`,
 			TABLE_RACE_CODES,
 			code,
@@ -143,7 +143,7 @@ func CreateRaceCodesDDL(p *Layout) string {
 }
 
 // Creates DDL to create and load data into the ethnic_codes table
-func CreateEthnicCodesDDL(p *Layout) string {
+func CreateEthnicCodesDDL(layout *Layout) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_ETHNIC_CODES))
@@ -154,14 +154,14 @@ func CreateEthnicCodesDDL(p *Layout) string {
 
 	// Sort the codes in alphabetical order
 	keys := []string{}
-	for key := range p.EthnicCodes {
+	for key := range layout.EthnicCodes {
 		keys = append(keys, key)
 	}
 	sort.Strings(keys)
 
 	// Write the insert statements
 	for _, code := range keys {
-		value := p.EthnicCodes[code]
+		value := layout.EthnicCodes[code]
 		stmt := fmt.Sprintf(`INSERT INTO %s VALUES('%s','%s');`,
 			TABLE_ETHNIC_CODES,
 			code,
@@ -178,7 +178,7 @@ func CreateEthnicCodesDDL(p *Layout) string {
 }
 
 // Creates DDL to create and load data into the county table
-func CreateCountyCodesDDL(p *Layout) string {
+func CreateCountyCodesDDL(layout *Layout) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_COUNTY_CODES))
@@ -189,14 +189,14 @@ func CreateCountyCodesDDL(p *Layout) string {
 
 	// Sort the codes in alphabetical order
 	keys := []int{}
-	for key := range p.CountyCodes {
+	for key := range layout.CountyCodes {
 		keys = append(keys, key)
 	}
 	sort.Ints(keys)
 
 	// Write the insert statements
 	for _, code := range keys {
-		value := p.CountyCodes[code]
+		value := layout.CountyCodes[code]
 		stmt := fmt.Sprintf(`INSERT INTO %s VALUES(%d,'%s');`,
 			TABLE_COUNTY_CODES,
 			code,
