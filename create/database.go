@@ -1,11 +1,13 @@
 package create
 
 import (
+	"archive/zip"
 	"database/sql"
 	"encoding/csv"
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"os"
 	"strings"
 	"time"
@@ -71,7 +73,7 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 
 	// Read from the CSV reader and insert records into the database
 	progress := util.NewProgress()
-	progress.Total = 8_383_371 // TODO get exact number from reading CSV file
+	progress.Total = estimatedNumberOfVoters(zipEntry)
 	progress.SoFar = 0
 	progress.LastPercent = 0
 
@@ -144,4 +146,22 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 	handleError(err)
 
 	log.Printf("Database created successfully in %v\n", time.Since(stime))
+}
+
+// estimatedNumberOfVoters returns the estimated number of voters based
+// on a heuristic that employs a ratio of actual number of voters
+// divided by compressed file size. These constants should be updated
+// from time to tome.
+
+func estimatedNumberOfVoters(file *zip.File) int64 {
+	const (
+		// Values from December 22, 2023 file
+		NUMER = 8465201
+		DENOM = 3911973311
+	)
+	ratio := float64(NUMER) / float64(DENOM)
+	compressedSize := float64(file.FileHeader.CompressedSize64)
+	countf := compressedSize * ratio
+	count := int64(math.Round(countf))
+	return count
 }
