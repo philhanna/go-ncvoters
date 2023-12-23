@@ -7,7 +7,7 @@ import (
 )
 
 // Creates DDL to create and load data into the ethnic_codes table
-func CreateEthnicCodesDDL(layout *Layout) string {
+func CreateEthnicCodesDDL(ethnicCodes map[string]string) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_ETHNIC_CODES))
@@ -18,14 +18,14 @@ func CreateEthnicCodesDDL(layout *Layout) string {
 
 	// Sort the codes in alphabetical order
 	keys := []string{}
-	for key := range layout.EthnicCodes {
+	for key := range ethnicCodes {
 		keys = append(keys, key)
 	}
 	sort.Strings(keys)
 
 	// Write the insert statements
 	for _, code := range keys {
-		value := layout.EthnicCodes[code]
+		value := ethnicCodes[code]
 		stmt := fmt.Sprintf(`INSERT INTO %s VALUES('%s','%s');`,
 			TABLE_ETHNIC_CODES,
 			code,

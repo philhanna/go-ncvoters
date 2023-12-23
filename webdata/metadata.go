@@ -40,7 +40,7 @@ func GetMetadataDDL() string {
 	sb.WriteString(CreateColumnsDDL(layout.GetColumns()))
 	sb.WriteString(CreateStatusCodesDDL(layout.GetStatusCodes()))
 	sb.WriteString(CreateRaceCodesDDL(layout))
-	sb.WriteString(CreateEthnicCodesDDL(layout))
+	sb.WriteString(CreateEthnicCodesDDL(layout.GetEthnicCodes()))
 	sb.WriteString(CreateCountyCodesDDL(layout))
 	ddl := sb.String()
 
