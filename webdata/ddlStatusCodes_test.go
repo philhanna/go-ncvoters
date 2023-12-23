@@ -19,7 +19,8 @@ func TestCreateStatusCodesDDL(t *testing.T) {
 				"I": "Inactive",
 				"D": "Denied",
 			},
-			`BEGIN TRANSACTION;
+			`
+BEGIN TRANSACTION;
 DROP TABLE IF EXISTS status_codes;
 CREATE TABLE status_codes (
   status         TEXT,
@@ -33,8 +34,8 @@ COMMIT;
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			want := tt.want
-			have := CreateStatusCodesDDL(tt.statusCodes)
+			want := NormalizeSQL(tt.want)
+			have := NormalizeSQL(CreateStatusCodesDDL(tt.statusCodes))
 			assert.Equal(t, want, have)
 		})
 	}

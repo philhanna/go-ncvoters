@@ -17,7 +17,8 @@ func TestCreateColumnsDDL(t *testing.T) {
 			{"middle_name", "varchar(20)", "Voter middle name"},
 			{"first_name", "varchar(25)", "Voter last name"},
 		},
-			`BEGIN TRANSACTION;
+			`
+BEGIN TRANSACTION;
 DROP TABLE IF EXISTS columns;
 CREATE TABLE columns (
   name           TEXT,
@@ -32,8 +33,8 @@ COMMIT;
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			want := tt.want
-			have := CreateColumnsDDL(tt.columns)
+			want := NormalizeSQL(tt.want)
+			have := NormalizeSQL(CreateColumnsDDL(tt.columns))
 			assert.Equal(t, want, have)
 		})
 	}
