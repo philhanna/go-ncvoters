@@ -7,7 +7,7 @@ import (
 )
 
 // Creates DDL to create and load data into the status_codes table
-func CreateStatusCodesDDL(layout *Layout) string {
+func CreateStatusCodesDDL(statusCodes map[string]string) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_STATUS_CODES))
@@ -18,14 +18,14 @@ func CreateStatusCodesDDL(layout *Layout) string {
 
 	// Sort the codes in alphabetical order
 	keys := []string{}
-	for key := range layout.StatusCodes {
+	for key := range statusCodes {
 		keys = append(keys, key)
 	}
 	sort.Strings(keys)
 
 	// Write the insert statements
 	for _, code := range keys {
-		value := layout.StatusCodes[code]
+		value := statusCodes[code]
 		stmt := fmt.Sprintf(`INSERT INTO %s VALUES('%s','%s');`,
 			TABLE_STATUS_CODES,
 			code,
