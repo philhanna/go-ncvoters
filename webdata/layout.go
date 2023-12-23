@@ -3,7 +3,6 @@ package webdata
 import (
 	"bufio"
 	"io"
-	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -101,16 +100,11 @@ func NewLayout(body io.Reader) *Layout {
 	defer close(inch)
 	ouch := machine.Run(inch)
 
-	state := machine.InitialState
-
 	scanner := bufio.NewScanner(body)
 	for scanner.Scan() {
 		line := scanner.Text()
 		inch <- fsm.Event[string](line)
-		state = <-ouch
-	}
-	if machine.Trace {
-		log.Printf("Final state is %v\n", state)
+		<-ouch
 	}
 	return layout
 }
