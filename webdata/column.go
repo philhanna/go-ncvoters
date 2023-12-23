@@ -1,7 +1,6 @@
 package webdata
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 )
@@ -32,19 +31,4 @@ func NewColumn(line string) Column {
 		Description: strings.Trim(tokens[2], " "),
 	}
 	return column
-}
-
-// ---------------------------------------------------------------------
-// Methods
-// ---------------------------------------------------------------------
-
-// String returns a (JSON) string representation of this object
-func (c Column) String() string {
-	parts := []string{
-		fmt.Sprintf("%q:%q", "name", c.Name),
-		fmt.Sprintf("%q:%q", "type", c.DataType),
-		fmt.Sprintf("%q:%q", "desc", c.Description),
-	}
-	jsonstr := fmt.Sprintf("{%s}", strings.Join(parts, ","))
-	return jsonstr
 }
