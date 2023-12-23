@@ -6,7 +6,7 @@ import (
 )
 
 // Creates DDL to create and load data into the columns table
-func CreateColumnsDDL(layout *Layout) string {
+func CreateColumnsDDL(columns []Column) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_COLUMNS))
@@ -15,7 +15,7 @@ func CreateColumnsDDL(layout *Layout) string {
 	parts = append(parts, "  dataType       TEXT,")
 	parts = append(parts, "  description    TEXT")
 	parts = append(parts, `);`)
-	for _, column := range layout.GetColumns() {
+	for _, column := range columns {
 		stmt := fmt.Sprintf(`INSERT INTO %s VALUES('%s','%s','%s');`,
 			TABLE_COLUMNS,
 			column.Name,

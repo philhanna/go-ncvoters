@@ -37,7 +37,7 @@ func GetMetadataDDL() string {
 
 	// Start building the DDL string
 	sb := strings.Builder{}
-	sb.WriteString(CreateColumnsDDL(layout))
+	sb.WriteString(CreateColumnsDDL(layout.GetColumns()))
 	sb.WriteString(CreateStatusCodesDDL(layout))
 	sb.WriteString(CreateRaceCodesDDL(layout))
 	sb.WriteString(CreateEthnicCodesDDL(layout))
