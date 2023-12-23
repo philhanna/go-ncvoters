@@ -23,10 +23,10 @@ const (
 // Functions
 // ---------------------------------------------------------------------
 
-func GetMetadataDDL() string {
+func GetMetadataDDL(url string) string {
 
 	// Get the up-to-date layout from the voters website
-	resp, err := http.Get(URL)
+	resp, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
 	}
