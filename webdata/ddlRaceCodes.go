@@ -7,7 +7,7 @@ import (
 )
 
 // Creates DDL to create and load data into the race_codes table
-func CreateRaceCodesDDL(layout *Layout) string {
+func CreateRaceCodesDDL(raceCodes map[string]string) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_RACE_CODES))
@@ -18,14 +18,14 @@ func CreateRaceCodesDDL(layout *Layout) string {
 
 	// Sort the codes in alphabetical order
 	keys := []string{}
-	for key := range layout.RaceCodes {
+	for key := range raceCodes {
 		keys = append(keys, key)
 	}
 	sort.Strings(keys)
 
 	// Write the insert statements
 	for _, code := range keys {
-		value := layout.RaceCodes[code]
+		value := raceCodes[code]
 		stmt := fmt.Sprintf(`INSERT INTO %s VALUES('%s','%s');`,
 			TABLE_RACE_CODES,
 			code,
