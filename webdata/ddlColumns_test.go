@@ -21,9 +21,9 @@ func TestCreateColumnsDDL(t *testing.T) {
 BEGIN TRANSACTION;
 DROP TABLE IF EXISTS columns;
 CREATE TABLE columns (
-  name           TEXT,
-  dataType       TEXT,
-  description    TEXT
+	name           TEXT,
+	dataType       TEXT,
+	description    TEXT
 );
 INSERT INTO columns VALUES('first_name','varchar(20)','Voter first name');
 INSERT INTO columns VALUES('middle_name','varchar(20)','Voter middle name');
