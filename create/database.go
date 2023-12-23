@@ -150,9 +150,8 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 
 // estimatedNumberOfVoters returns the estimated number of voters based
 // on a heuristic that employs a ratio of actual number of voters
-// divided by compressed file size. These constants should be updated
-// from time to tome.
-
+// divided by compressed file size. This is only used for the progress bar.
+// These constants should be updated from time to time.
 func estimatedNumberOfVoters(file *zip.File) int64 {
 	const (
 		// Values from December 22, 2023 file

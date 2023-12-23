@@ -1,18 +1,11 @@
-package main
+package webdata
 
 import (
-	"database/sql"
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 	"sort"
 	"strings"
-
-	_ "github.com/mattn/go-sqlite3"
-	"github.com/philhanna/go-ncvoters/webdata"
 )
 
 // ---------------------------------------------------------------------
@@ -29,35 +22,10 @@ const (
 )
 
 // ---------------------------------------------------------------------
-// Variables
-// ---------------------------------------------------------------------
-
-var dbName string
-
-// ---------------------------------------------------------------------
 // Functions
 // ---------------------------------------------------------------------
 
-func main() {
-
-	const USAGE = `usage: metadata [OPTION]
-
-Creates the metadata tables for the North Carolina voter registration
-database, using the latest layout from the Board of Elections website.
-
-options:
-  -h, --help               Displays this help text and exits.
-  -o, --output             Output database name. If not specified,
-                           uses "metadata.db" in the temp directory.
-`
-
-	// Handle the command line options
-	flag.StringVar(&dbName, "o", "", "Output file name")
-	flag.StringVar(&dbName, "output", "", "Output file name")
-	flag.Usage = func() {
-		fmt.Fprint(os.Stderr, USAGE)
-	}
-	flag.Parse()
+func GetMetadataDDL() string {
 
 	// Get the up-to-date layout from the voters website
 	resp, err := http.Get(URL)
@@ -67,42 +35,22 @@ options:
 	defer resp.Body.Close()
 
 	// Parse the file into the data of interest
-	p := webdata.NewLayout(resp.Body)
-
-	// Open the output fp
-	if dbName == "" {
-		dbName = filepath.Join(os.TempDir(), "metadata.db")
-	}
+	p := NewLayout(resp.Body)
 
 	// Start building the DDL string
 	sb := strings.Builder{}
-	sb.WriteString(createColumns(p))
-	sb.WriteString(createStatusCodes(p))
-	sb.WriteString(createRaceCodes(p))
-	sb.WriteString(createEthnicCodes(p))
-	sb.WriteString(createCountyCodes(p))
+	sb.WriteString(CreateColumnsDDL(p))
+	sb.WriteString(CreateStatusCodesDDL(p))
+	sb.WriteString(CreateRaceCodesDDL(p))
+	sb.WriteString(CreateEthnicCodesDDL(p))
+	sb.WriteString(CreateCountyCodesDDL(p))
 	ddl := sb.String()
 
-	// Open a connection to the database file
-	db, err := sql.Open("sqlite3", dbName)
-	if err != nil {
-		fmt.Println("Error opening database:", err)
-		return
-	}
-	defer db.Close()
-
-	// Execute the DDL statement
-	_, err = db.Exec(ddl)
-	if err != nil {
-		log.Println("Error creating table:", err)
-		return
-	}
-
-	log.Printf("Metadata databse created in %s\n", dbName)
+	return ddl
 }
 
 // Creates DDL to create and load data into the columns table
-func createColumns(p *webdata.Layout) string {
+func CreateColumnsDDL(p *Layout) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_COLUMNS))
@@ -124,7 +72,8 @@ func createColumns(p *webdata.Layout) string {
 	return strings.Join(parts, "\n") + "\n"
 }
 
-func createStatusCodes(p *webdata.Layout) string {
+// Creates DDL to create and load data into the status_codes table
+func CreateStatusCodesDDL(p *Layout) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_STATUS_CODES))
@@ -158,7 +107,8 @@ func createStatusCodes(p *webdata.Layout) string {
 	return strings.Join(parts, "\n") + "\n"
 }
 
-func createRaceCodes(p *webdata.Layout) string {
+// Creates DDL to create and load data into the race_codes table
+func CreateRaceCodesDDL(p *Layout) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_RACE_CODES))
@@ -192,7 +142,8 @@ func createRaceCodes(p *webdata.Layout) string {
 	return strings.Join(parts, "\n") + "\n"
 }
 
-func createEthnicCodes(p *webdata.Layout) string {
+// Creates DDL to create and load data into the ethnic_codes table
+func CreateEthnicCodesDDL(p *Layout) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_ETHNIC_CODES))
@@ -226,7 +177,8 @@ func createEthnicCodes(p *webdata.Layout) string {
 	return strings.Join(parts, "\n") + "\n"
 }
 
-func createCountyCodes(p *webdata.Layout) string {
+// Creates DDL to create and load data into the county table
+func CreateCountyCodesDDL(p *Layout) string {
 	parts := []string{}
 	parts = append(parts, "BEGIN TRANSACTION;")
 	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_COUNTY_CODES))
