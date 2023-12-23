@@ -8,9 +8,9 @@ import (
 
 func TestCreateRaceCodesDDL(t *testing.T) {
 	tests := []struct {
-		name string
+		name      string
 		raceCodes map[string]string
-		want string
+		want      string
 	}{
 		{
 			"just2",
