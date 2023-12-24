@@ -1,6 +1,8 @@
 package webdata
 
 import (
+	"os"
+	"path"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -35,4 +37,15 @@ func TestParseColumns(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestParseLayoutFile(t *testing.T) {
+	const filename = "../testdata/layout_ncvoter.txt"
+	layout, err := ParseLayoutFile(filename)
+	assert.Nil(t, err)
+	actual, err := layout.GetMetadataDDL()
+	assert.Nil(t, err)
+	
+	outfile := path.Join(os.TempDir(), "metadata.sql")
+	os.WriteFile(outfile, []byte(actual), 0644)
 }
