@@ -2,7 +2,6 @@ package webdata
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -36,18 +35,13 @@ func TestDownloadLayout(t *testing.T) {
 func TestNewLayout(t *testing.T) {
 	const NCOLUMNS = 67
 	path := filepath.Join("..", "testdata", "layout_ncvoter.txt")
-	blob, err := os.ReadFile(path)
+	layout, err := ParseLayoutFile(path)
 	assert.Nil(t, err)
 
-	body := string(blob)
-	reader := strings.NewReader(body)
-	layout, err := NewLayout(reader)
-	assert.Nil(t, err)
-
-	assert.Equal(t, NCOLUMNS, len(layout.GetColumns()))
+	assert.Equal(t, NCOLUMNS, len(layout.AllColumns))
 	
 	if false {
-		for i, column := range layout.GetColumns() {
+		for i, column := range layout.AllColumns {
 			fmt.Printf("%d: %v\n", i, column)
 		}
 	}

@@ -23,14 +23,14 @@ func TestParseColumns(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			columns, err := ParseColumns(tt.filename)
+			layout, err := ParseLayoutFile(tt.filename)
 			if tt.wantErr {
 				assert.NotNil(t, err)
 			} else {
 				assert.Nil(t, err)
 				// Verify that the test columns were found
 				for _, column := range tt.columns {
-					assert.Contains(t, columns, column)
+					assert.Contains(t, layout.AllColumns, column)
 				}
 			}
 		})
