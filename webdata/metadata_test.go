@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetLayout(t *testing.T) {
+func TestDownloadLayout(t *testing.T) {
 	tests := []struct {
 		name    string
 		url     string
@@ -18,7 +18,7 @@ func TestGetLayout(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			have, err := GetLayout(tt.url)
+			have, err := DownloadLayout(tt.url)
 			if tt.wantErr {
 				assert.NotNil(t, err)
 			} else {

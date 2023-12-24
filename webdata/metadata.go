@@ -26,9 +26,9 @@ const (
 // Functions
 // ---------------------------------------------------------------------
 
-// GetLayout gets the latest layout data from the voters website and
+// DownloadLayout gets the latest layout data from the voters website and
 // writes it to a file in /tmp.
-func GetLayout(url string) (string, error) {
+func DownloadLayout(url string) (string, error) {
 
 	const BUFSIZ = 65536
 
@@ -79,8 +79,8 @@ readLoop:
 // GetMetadataDDL returns metadata parsed from a file
 func GetMetadataDDL(filename string) (string, error) {
 
-    // Open the file. Typically, this is the one written to /tmp by
-    // GetLayout()
+	// Open the file. Typically, this is the one written to /tmp by
+	// GetLayout()
 	fp, err := os.Open(filename)
 	if err != nil {
 		return "", err
