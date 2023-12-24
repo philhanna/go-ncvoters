@@ -137,6 +137,12 @@ func ParseLayoutFile(filename string) (*Layout, error) {
 					layout.CountyCodes[id] = name
 				}
 			}
+		case "Reason codes":
+			re := regexp.MustCompile(`\s+`)
+			for _, line := range cb {
+				tokens := re.Split(line, 2)
+				layout.ReasonCodes[tokens[0]] = tokens[1]
+			}
 
 		}
 	}
