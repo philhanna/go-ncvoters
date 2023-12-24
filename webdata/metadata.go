@@ -26,8 +26,8 @@ const (
 // Functions
 // ---------------------------------------------------------------------
 
-// DownloadLayout gets the latest layout data from the voters website and
-// writes it to a file in /tmp.
+// DownloadLayout gets the latest layout data from the voters website
+// and writes it to a file in the system temporary directory
 func DownloadLayout(url string) (string, error) {
 
 	const BUFSIZ = 65536
@@ -76,21 +76,26 @@ readLoop:
 
 }
 
-// GetMetadataDDL returns metadata parsed from a file
-func GetMetadataDDL(filename string) (string, error) {
+// ParseLayoutFile returns metadata parsed from a file
+func ParseLayoutFile(filename string) (*Layout, error) {
 
-	// Open the file. Typically, this is the one written to /tmp by
-	// GetLayout()
+    // Open the file. Typically, this is the one written to the system
+    // temporary direcory by DownloadLayout()
 	fp, err := os.Open(filename)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer fp.Close()
 
 	// Parse the file into the data of interest
-	layout := NewLayout(fp)
+	layout, err := NewLayout(fp)
+	return layout, err
+}
 
-	// Start building the DDL string
+// GetMetadataDDL returns the metadata DDL extracted from a layout
+// object
+func (layout *Layout) GetMetadataDDL(filename string) (string, error) {
+
 	sb := strings.Builder{}
 	sb.WriteString(CreateColumnsDDL(layout.GetColumns()))
 	sb.WriteString(CreateStatusCodesDDL(layout.GetStatusCodes()))
