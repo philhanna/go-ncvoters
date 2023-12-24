@@ -1,7 +1,6 @@
 package create
 
 import (
-	"archive/zip"
 	"database/sql"
 	"encoding/csv"
 	"fmt"
@@ -73,7 +72,7 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 
 	// Read from the CSV reader and insert records into the database
 	progress := util.NewProgress()
-	progress.Total = estimatedNumberOfVoters(zipEntry)
+	progress.Total = estimatedNumberOfVoters(zipEntry.UncompressedSize64)
 	progress.SoFar = 0
 	progress.LastPercent = 0
 
@@ -152,15 +151,14 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 // on a heuristic that employs a ratio of actual number of voters
 // divided by compressed file size. This is only used for the progress bar.
 // These constants should be updated from time to time.
-func estimatedNumberOfVoters(file *zip.File) int64 {
+func estimatedNumberOfVoters(size uint64) int64 {
 	const (
 		// Values from December 22, 2023 file
 		NUMER = 8465201
 		DENOM = 3911973311
 	)
 	ratio := float64(NUMER) / float64(DENOM)
-	compressedSize := float64(file.FileHeader.CompressedSize64)
-	countf := compressedSize * ratio
+	countf := float64(size) * ratio
 	count := int64(math.Round(countf))
 	return count
 }
