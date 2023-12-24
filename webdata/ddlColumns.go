@@ -8,8 +8,6 @@ import (
 // Creates DDL to create and load data into the columns table
 func CreateColumnsDDL(columns []Column) string {
 	parts := []string{}
-	parts = append(parts, "BEGIN TRANSACTION;")
-	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_COLUMNS))
 	parts = append(parts, fmt.Sprintf("CREATE TABLE %s (", TABLE_COLUMNS))
 	parts = append(parts, "  name           TEXT,")
 	parts = append(parts, "  dataType       TEXT,")
@@ -24,6 +22,5 @@ func CreateColumnsDDL(columns []Column) string {
 		)
 		parts = append(parts, stmt)
 	}
-	parts = append(parts, "COMMIT;")
 	return strings.Join(parts, "\n") + "\n"
 }

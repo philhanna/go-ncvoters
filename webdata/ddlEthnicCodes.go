@@ -9,8 +9,6 @@ import (
 // Creates DDL to create and load data into the ethnic_codes table
 func CreateEthnicCodesDDL(ethnicCodes map[string]string) string {
 	parts := []string{}
-	parts = append(parts, "BEGIN TRANSACTION;")
-	parts = append(parts, fmt.Sprintf("DROP TABLE IF EXISTS %s;", TABLE_ETHNIC_CODES))
 	parts = append(parts, fmt.Sprintf("CREATE TABLE %s (", TABLE_ETHNIC_CODES))
 	parts = append(parts, "  ethnicity      TEXT,")
 	parts = append(parts, "  description    TEXT")
@@ -33,9 +31,6 @@ func CreateEthnicCodesDDL(ethnicCodes map[string]string) string {
 		)
 		parts = append(parts, stmt)
 	}
-
-	// Write the commit
-	parts = append(parts, "COMMIT;")
 
 	// Create the whole string
 	return strings.Join(parts, "\n") + "\n"

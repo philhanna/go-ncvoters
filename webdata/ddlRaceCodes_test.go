@@ -19,15 +19,12 @@ func TestCreateRaceCodesDDL(t *testing.T) {
 				"O": "OTHER",
 			},
 			`
-BEGIN TRANSACTION;
-DROP TABLE IF EXISTS race_codes;
 CREATE TABLE race_codes (
 	race TEXT,
 	description TEXT
 );
 INSERT INTO race_codes VALUES('A','ASIAN');
 INSERT INTO race_codes VALUES('O','OTHER');
-COMMIT;
 `,
 		},
 	}

@@ -19,8 +19,6 @@ func TestCreateCountyCodesDDL(t *testing.T) {
 				1: "Winken",
 				3: "Nod",
 			}, `
-BEGIN TRANSACTION;
-DROP TABLE IF EXISTS county_codes;
 CREATE TABLE county_codes (
 	county_id TEXT,
 	county TEXT
@@ -28,7 +26,6 @@ CREATE TABLE county_codes (
 INSERT INTO county_codes VALUES(1,'Winken');
 INSERT INTO county_codes VALUES(2,'Blinken');
 INSERT INTO county_codes VALUES(3,'Nod');
-COMMIT;
 `,
 		},
 	}

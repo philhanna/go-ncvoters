@@ -39,10 +39,19 @@ func TestNewLayout(t *testing.T) {
 	assert.Nil(t, err)
 
 	assert.Equal(t, NCOLUMNS, len(layout.AllColumns))
-	
+
 	if false {
 		for i, column := range layout.AllColumns {
 			fmt.Printf("%d: %v\n", i, column)
 		}
 	}
+}
+
+func TestLayout_GetMetadataDDL(t *testing.T) {
+	path := filepath.Join("..", "testdata", "layout_ncvoter.txt")
+	layout, err := ParseLayoutFile(path)
+	assert.Nil(t, err)
+	ddl, err := layout.GetMetadataDDL()
+	assert.Nil(t, err)
+	fmt.Print(ddl)
 }

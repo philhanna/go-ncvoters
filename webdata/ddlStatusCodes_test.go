@@ -20,8 +20,6 @@ func TestCreateStatusCodesDDL(t *testing.T) {
 				"D": "Denied",
 			},
 			`
-BEGIN TRANSACTION;
-DROP TABLE IF EXISTS status_codes;
 CREATE TABLE status_codes (
   status         TEXT,
   description    TEXT
@@ -29,7 +27,6 @@ CREATE TABLE status_codes (
 INSERT INTO status_codes VALUES('A','Active');
 INSERT INTO status_codes VALUES('D','Denied');
 INSERT INTO status_codes VALUES('I','Inactive');
-COMMIT;
 `},
 	}
 	for _, tt := range tests {

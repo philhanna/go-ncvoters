@@ -20,8 +20,6 @@ func TestCreateEthnicCodesDDL(t *testing.T) {
 				"UN": "UNDESIGNATED",
 			},
 			`
-BEGIN TRANSACTION;
-DROP TABLE IF EXISTS ethnic_codes;
 CREATE TABLE ethnic_codes (
   ethnicity      TEXT,
   description    TEXT
@@ -29,7 +27,6 @@ CREATE TABLE ethnic_codes (
 INSERT INTO ethnic_codes VALUES('HL','HISPANIC or LATINO');
 INSERT INTO ethnic_codes VALUES('NL','NOT HISPANIC or NOT LATINO');
 INSERT INTO ethnic_codes VALUES('UN','UNDESIGNATED'); 
-COMMIT;
 `,
 		},
 	}

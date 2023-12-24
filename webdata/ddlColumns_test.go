@@ -18,8 +18,6 @@ func TestCreateColumnsDDL(t *testing.T) {
 			{"first_name", "varchar(25)", "Voter last name"},
 		},
 			`
-BEGIN TRANSACTION;
-DROP TABLE IF EXISTS columns;
 CREATE TABLE columns (
 	name           TEXT,
 	dataType       TEXT,
@@ -28,7 +26,6 @@ CREATE TABLE columns (
 INSERT INTO columns VALUES('first_name','varchar(20)','Voter first name');
 INSERT INTO columns VALUES('middle_name','varchar(20)','Voter middle name');
 INSERT INTO columns VALUES('first_name','varchar(25)','Voter last name');
-COMMIT;
 `},
 	}
 	for _, tt := range tests {

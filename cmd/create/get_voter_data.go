@@ -99,6 +99,12 @@ func run() {
 
 	var err error
 
+	handleError := func(err error) {
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	log.Println("Starting voter database creation")
 
 	// Download or reuse the voter zip file
@@ -130,16 +136,22 @@ func run() {
 	defer db.Close()
 
 	// Get the layout
-	sqlStmt, err := webdata.NewLayout().GetMetadataDDL()
-	if err != nil {
-		log.Fatal(err)
-	}
+	layoutFile, err := webdata.DownloadLayout(webdata.URL)
+	handleError(err)
+
+	layout, err := webdata.ParseLayoutFile(layoutFile)
+	handleError(err)
+	
+	sqlStmt, err := layout.GetMetadataDDL()
+	handleError(err)
 
 	// Write the tables
+	tx, err := db.Begin()
+	handleError(err)
 	_, err = db.Exec(sqlStmt)
-	if err != nil {
-		log.Fatal(err)
-	}
+	handleError(err)
+	err = tx.Commit()
+	handleError(err)
 
 	log.Println("Process completed successfully!")
 }
