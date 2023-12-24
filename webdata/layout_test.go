@@ -11,13 +11,18 @@ import (
 )
 
 func TestNewLayout(t *testing.T) {
+	const NCOLUMNS = 67
 	path := filepath.Join("..", "testdata", "layout_ncvoter.txt")
 	blob, err := os.ReadFile(path)
 	assert.Nil(t, err)
+
 	body := string(blob)
 	reader := strings.NewReader(body)
-	layout := NewLayout(reader)
-	assert.Equal(t, 67, len(layout.GetColumns()))
+	layout, err := NewLayout(reader)
+	assert.Nil(t, err)
+
+	assert.Equal(t, NCOLUMNS, len(layout.GetColumns()))
+	
 	if false {
 		for i, column := range layout.GetColumns() {
 			fmt.Printf("%d: %v\n", i, column)
