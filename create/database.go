@@ -102,6 +102,12 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 		handleError(err)
 
 		progress.SoFar++
+		// TODO remove me
+		if true {
+			if progress.SoFar > 200_000 {
+				return
+			}
+		}
 		percent := int(float64(progress.SoFar) / float64(progress.Total) * 100)
 		if percent > progress.LastPercent {
 			s := strings.Repeat("*", percent/2)

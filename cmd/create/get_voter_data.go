@@ -22,6 +22,7 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
 	"log"
@@ -32,6 +33,7 @@ import (
 	"github.com/philhanna/go-ncvoters/create"
 	"github.com/philhanna/go-ncvoters/download"
 	"github.com/philhanna/go-ncvoters/util"
+	"github.com/philhanna/go-ncvoters/webdata"
 )
 
 // ---------------------------------------------------------------------
@@ -118,6 +120,26 @@ func run() {
 
 	// Create the database
 	create.CreateDatabase(zipFileName, entryName, dbFileName, progressEvery)
+
+	// Add the metadata tables
+	log.Println("Adding metadata tables...")
+	db, err := sql.Open("sqlite3", dbFileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	// Get the layout
+	sqlStmt, err := webdata.NewLayout().GetMetadataDDL()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Write the tables
+	_, err = db.Exec(sqlStmt)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	log.Println("Process completed successfully!")
 }
