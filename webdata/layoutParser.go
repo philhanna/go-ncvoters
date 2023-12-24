@@ -28,6 +28,12 @@ const (
 	READING_CODE_BLOCK
 )
 
+var (
+	cbName     string
+	cb         []string
+	codeBlocks = make(map[string][]string)
+)
+
 // ---------------------------------------------------------------------
 // Functions
 // ---------------------------------------------------------------------
@@ -46,10 +52,7 @@ func ParseLayoutFile(filename string) (*Layout, error) {
 	defer fp.Close()
 
 	// Create a map of code types to lines of the codes
-	codeBlocks := make(map[string][]string)
-
-	var cbName string
-	var cb []string
+	codeBlocks = make(map[string][]string)
 
 	// Read it line by line and parse it with a finite state machine
 	state := INIT
@@ -57,57 +60,18 @@ func ParseLayoutFile(filename string) (*Layout, error) {
 	scanner := bufio.NewScanner(fp)
 	for scanner.Scan() {
 		line := scanner.Text()
-		switch state {
-
-		case INIT:
-			// Looking for start of columns list
-			if strings.HasPrefix(line, "-- File layout") {
-				state = LOOKING_FOR_COLUMNS_START
-			}
-
-		case LOOKING_FOR_COLUMNS_START:
-			// Looking for a row of hyphens
-			if strings.HasPrefix(line, "-------") {
-				state = READING_COLUMNS
-			}
-
-		case READING_COLUMNS:
-			// Looking for the trailing row of hyphens
-			if strings.HasPrefix(line, "-------") {
-				state = LOOKING_FOR_CODE_BLOCK
-			} else {
-				column := NewColumn(line)
-				layout.AllColumns = append(layout.AllColumns, column)
-			}
-
-		case LOOKING_FOR_CODE_BLOCK:
-			if strings.HasPrefix(line, "/* ****") {
-				state = LOOKING_FOR_CODE_BLOCK_NAME
-			}
-
-		case LOOKING_FOR_CODE_BLOCK_NAME:
-			cbName = line
-			cb = make([]string, 0)
-			state = LOOKING_FOR_CODE_BLOCK_START
-
-		case LOOKING_FOR_CODE_BLOCK_START:
-			if strings.HasPrefix(line, "*******") {
-				state = READING_CODE_BLOCK
-			}
-
-		case READING_CODE_BLOCK:
-			// Check for end of code block
-			if strings.HasPrefix(line, "*******") {
-				codeBlocks[cbName] = cb
-				state = LOOKING_FOR_CODE_BLOCK
-			} else {
-				cb = append(cb, line)
-			}
-		}
+		state = handleLine(layout, line, state)
 	}
 
 	// Now put the code blocks into the proper slots in the Layout object
-	for cbName, cb = range codeBlocks {
+	addCodeBlocks(layout)
+
+	// Done
+	return layout, nil
+}
+
+func addCodeBlocks(layout *Layout) {
+	for cbName, cb := range codeBlocks {
 		switch cbName {
 		case "Status codes":
 			re := regexp.MustCompile(`\s+`)
@@ -146,7 +110,57 @@ func ParseLayoutFile(filename string) (*Layout, error) {
 
 		}
 	}
+}
 
-	// Done
-	return layout, nil
+func handleLine(layout *Layout, line string, state State) State {
+
+	switch state {
+
+	case INIT:
+		// Looking for start of columns list
+		if strings.HasPrefix(line, "-- File layout") {
+			state = LOOKING_FOR_COLUMNS_START
+		}
+
+	case LOOKING_FOR_COLUMNS_START:
+		// Looking for a row of hyphens
+		if strings.HasPrefix(line, "-------") {
+			state = READING_COLUMNS
+		}
+
+	case READING_COLUMNS:
+		// Looking for the trailing row of hyphens
+		if strings.HasPrefix(line, "-------") {
+			state = LOOKING_FOR_CODE_BLOCK
+		} else {
+			column := NewColumn(line)
+			layout.AllColumns = append(layout.AllColumns, column)
+		}
+
+	case LOOKING_FOR_CODE_BLOCK:
+		if strings.HasPrefix(line, "/* ****") {
+			state = LOOKING_FOR_CODE_BLOCK_NAME
+		}
+
+	case LOOKING_FOR_CODE_BLOCK_NAME:
+		cbName = line
+		cb = make([]string, 0)
+		state = LOOKING_FOR_CODE_BLOCK_START
+
+	case LOOKING_FOR_CODE_BLOCK_START:
+		if strings.HasPrefix(line, "*******") {
+			state = READING_CODE_BLOCK
+		}
+
+	case READING_CODE_BLOCK:
+		// Check for end of code block
+		if strings.HasPrefix(line, "*******") {
+			codeBlocks[cbName] = cb
+			state = LOOKING_FOR_CODE_BLOCK
+		} else {
+			cb = append(cb, line)
+		}
+	}
+
+	return state
 }
