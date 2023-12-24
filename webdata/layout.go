@@ -111,11 +111,21 @@ readLoop:
 // object
 func (layout *Layout) GetMetadataDDL() (string, error) {
 	sb := strings.Builder{}
-	sb.WriteString(CreateColumnsDDL(layout.AllColumns))
-	sb.WriteString(CreateStatusCodesDDL(layout.StatusCodes))
-	sb.WriteString(CreateRaceCodesDDL(layout.RaceCodes))
-	sb.WriteString(CreateEthnicCodesDDL(layout.EthnicCodes))
-	sb.WriteString(CreateCountyCodesDDL(layout.CountyCodes))
+	if layout.AllColumns != nil {
+		sb.WriteString(CreateColumnsDDL(layout.AllColumns))
+	}
+    if layout.StatusCodes != nil {
+        sb.WriteString(CreateStatusCodesDDL(layout.StatusCodes))
+    }
+    if layout.RaceCodes != nil {
+        sb.WriteString(CreateRaceCodesDDL(layout.RaceCodes))
+    }
+    if layout.EthnicCodes != nil {
+        sb.WriteString(CreateEthnicCodesDDL(layout.EthnicCodes))
+    }
+    if layout.CountyCodes != nil {
+        sb.WriteString(CreateCountyCodesDDL(layout.CountyCodes))
+    }
 	ddl := sb.String()
 	return ddl, nil
 }
