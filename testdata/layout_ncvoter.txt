@@ -309,3 +309,38 @@ WILSON             98
 YADKIN             99
 YANCEY             00
 ***************************************************************************** */
+
+/* ****************************************************************************
+Reason codes
+reason_cd  voter_status_reason_desc                                
+*******************************************************************************
+A1         UNVERIFIED                                              
+A2         CONFIRMATION PENDING                                    
+AA         ARMED FORCES                                            
+AL         LEGACY DATA                                             
+AN         UNVERIFIED NEW                                          
+AP         VERIFICATION PENDING                                    
+AV         VERIFIED                                                
+DI         UNAVAILABLE ESSENTIAL INFORMATION                       
+DN         CONFIRMATION NOT RETURNED                               
+DU         VERIFICATION RETURNED UNDELIVERABLE                     
+IA         ADMINISTRATIVE                                          
+IL         LEGACY - CONVERSION                                     
+IN         CONFIRMATION NOT RETURNED                               
+IU         CONFIRMATION RETURNED UNDELIVERABLE                     
+R2         DUPLICATE                                               
+RA         ADMINISTRATIVE                                          
+RC         REMOVED DUE TO SUSTAINED CHALLENGE                      
+RD         DECEASED                                                
+RF         FELONY CONVICTION                                       
+RH         MOVED WITHIN STATE                                      
+RL         MOVED FROM COUNTY                                       
+RM         REMOVED AFTER 2 FED GENERAL ELECTIONS IN INACTIVE STATUS
+RP         REMOVED UNDER OLD PURGE LAW                             
+RQ         REQUEST FROM VOTER                                      
+RR         FELONY SENTENCE COMPLETED                               
+RS         MOVED FROM STATE                                        
+RT         TEMPORARY REGISTRANT                                    
+SM         MILITARY                                                
+SO         OVERSEAS CITIZEN                                        
+**************************************************************************** */
