@@ -1,8 +1,11 @@
 package webdata
 
 import (
-	"log"
+	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"path"
 	"strings"
 )
 
@@ -23,17 +26,69 @@ const (
 // Functions
 // ---------------------------------------------------------------------
 
-func GetMetadataDDL(url string) string {
+// GetLayout gets the latest layout data from the voters website and
+// writes it to a file in /tmp.
+func GetLayout(url string) (string, error) {
 
-	// Get the up-to-date layout from the voters website
+	const BUFSIZ = 65536
+
+	// Get the page with the layout data
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 	defer resp.Body.Close()
 
+	// Check the HTTP status code
+	statusCode := resp.StatusCode
+	if statusCode != 200 {
+		err := fmt.Errorf("expected HTTP status code 200, got %d", statusCode)
+		return "", err
+	}
+
+	// Write the page to /tmp/voter_layout.txt
+	filename := path.Join(os.TempDir(), "voter_layout.txt")
+	fp, err := os.Create(filename)
+	if err != nil {
+		return filename, err
+	}
+	defer fp.Close()
+
+	buffer := make([]byte, BUFSIZ)
+
+readLoop:
+	for {
+		n, err := resp.Body.Read(buffer)
+		switch {
+		case err == io.EOF:
+			if n > 0 {
+				fp.Write(buffer[:n])
+			}
+			break readLoop
+		case err != nil:
+			return filename, err
+		default:
+			fp.Write(buffer[:n])
+		}
+	}
+
+	return filename, nil
+
+}
+
+// GetMetadataDDL returns metadata parsed from a file
+func GetMetadataDDL(filename string) (string, error) {
+
+    // Open the file. Typically, this is the one written to /tmp by
+    // GetLayout()
+	fp, err := os.Open(filename)
+	if err != nil {
+		return "", err
+	}
+	defer fp.Close()
+
 	// Parse the file into the data of interest
-	layout := NewLayout(resp.Body)
+	layout := NewLayout(fp)
 
 	// Start building the DDL string
 	sb := strings.Builder{}
@@ -44,5 +99,5 @@ func GetMetadataDDL(url string) string {
 	sb.WriteString(CreateCountyCodesDDL(layout.GetCountyCodes()))
 	ddl := sb.String()
 
-	return ddl
+	return ddl, nil
 }
