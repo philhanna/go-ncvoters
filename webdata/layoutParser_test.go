@@ -45,7 +45,7 @@ func TestParseLayoutFile(t *testing.T) {
 	assert.Nil(t, err)
 	actual, err := layout.GetMetadataDDL()
 	assert.Nil(t, err)
-	
+
 	outfile := path.Join(os.TempDir(), "metadata.sql")
 	os.WriteFile(outfile, []byte(actual), 0644)
 }

@@ -141,7 +141,7 @@ func run() {
 
 	layout, err := webdata.ParseLayoutFile(layoutFile)
 	handleError(err)
-	
+
 	sqlStmt, err := layout.GetMetadataDDL()
 	handleError(err)
 
