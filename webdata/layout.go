@@ -46,7 +46,7 @@ const (
 )
 
 // NewLayout parses the file layouts from an io.Reader
-func NewLayout(body io.Reader) *Layout {
+func NewLayout(reader io.Reader) (*Layout, error) {
 	layout := new(Layout)
 	layout.AllColumns = make([]Column, 0)
 	layout.StatusCodes = make(map[string]string)
@@ -100,13 +100,13 @@ func NewLayout(body io.Reader) *Layout {
 	defer close(inch)
 	ouch := machine.Run(inch)
 
-	scanner := bufio.NewScanner(body)
+	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		line := scanner.Text()
 		inch <- fsm.Event[string](line)
 		<-ouch
 	}
-	return layout
+	return layout, nil
 }
 
 // ---------------------------------------------------------------------
