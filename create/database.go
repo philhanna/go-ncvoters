@@ -16,6 +16,13 @@ import (
 	"github.com/philhanna/go-ncvoters/util"
 )
 
+var (
+	selectedIndices []int
+	colNames        []string
+	progress        *util.Progress
+	stime           time.Time
+)
+
 // CreateDatabase is the mainline for creating a database from the zip file.
 func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int) {
 
@@ -28,7 +35,7 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 
 	log.Println("Creating database...")
 
-	stime := time.Now()
+	stime = time.Now()
 
 	// Open the database
 	db, err := sql.Open("sqlite3", ":memory:")
@@ -54,6 +61,12 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 	zipEntry, err := GetZipEntry(zipFileName, entryName)
 	handleError(err)
 
+	// Initialize the progress bar
+	progress = util.NewProgress()
+	progress.Total = estimatedNumberOfVoters(zipEntry.UncompressedSize64)
+	progress.SoFar = 0
+	progress.LastPercent = 0
+
 	// Open the CSV file entry
 	f, err := zipEntry.Open()
 	handleError(err)
@@ -65,57 +78,20 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 	csvReader.FieldsPerRecord = -1 // Allow varying number of fields
 
 	// Get the column names
-	colNames, err := csvReader.Read()
+	colNames, err = csvReader.Read()
 	handleError(err)
 	selectedNames := goncvoters.Configuration.GetColumnNames()
-	selectedIndices := GetSelectedIndices(colNames, selectedNames)
+	selectedIndices = GetSelectedIndices(colNames, selectedNames)
 
 	// Read from the CSV reader and insert records into the database
-	progress := util.NewProgress()
-	progress.Total = estimatedNumberOfVoters(zipEntry.UncompressedSize64)
-	progress.SoFar = 0
-	progress.LastPercent = 0
-
-	for {
-
-		// Read the next record
-		record, err := csvReader.Read()
-		if err == io.EOF {
-			break
-		}
-		handleError(err)
-
-		// Choose just the columns we want
-		values := make([]any, len(selectedIndices))
-		for i, idx := range selectedIndices {
-			colName := colNames[idx]
-			if IsSanitizeCol(colName) {
-				value := string(record[idx])
-				values[i] = Sanitize(value)
-			} else {
-				values[i] = record[idx]
-			}
-		}
+	for values := range readFromCSV(csvReader) {
 
 		// Insert a record into the database
 		_, err = stmt.Exec(values...)
 		handleError(err)
 
-		progress.SoFar++
-		percent := int(float64(progress.SoFar) / float64(progress.Total) * 100)
-		if percent > progress.LastPercent {
-			s := strings.Repeat("*", percent/2)
-			for len(s) < 50 {
-				s += "."
-			}
-			if percent > progress.LastPercent {
-				countWithCommas := commas.Format(progress.SoFar)
-				fmt.Printf("Percent complete: %d%%, [%-s] %s records added in %v\r",
-					percent, s, countWithCommas, time.Since(stime))
-			}
-			progress.LastPercent = percent
-
-		}
+		// Update the progress bar
+		showProgress()
 	}
 	fmt.Println()
 
@@ -161,4 +137,51 @@ func estimatedNumberOfVoters(size uint64) int64 {
 	countf := float64(size) * ratio
 	count := int64(math.Round(countf))
 	return count
+}
+
+func readFromCSV(reader *csv.Reader) chan []any {
+	ch := make(chan []any, 100)
+	go func() {
+		defer close(ch)
+		for {
+			record, err := reader.Read()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				log.Fatal(err)
+			}
+			// Choose just the columns we want
+			values := make([]any, len(selectedIndices))
+			for i, idx := range selectedIndices {
+				colName := colNames[idx]
+				if IsSanitizeCol(colName) {
+					value := string(record[idx])
+					values[i] = Sanitize(value)
+				} else {
+					values[i] = record[idx]
+				}
+			}
+			ch <- values // Send the row of values down the channel
+		}
+	}()
+	return ch
+}
+
+func showProgress() {
+	progress.SoFar++
+	percent := int(float64(progress.SoFar) / float64(progress.Total) * 100)
+	if percent > progress.LastPercent {
+		s := strings.Repeat("*", percent/2)
+		for len(s) < 50 {
+			s += "."
+		}
+		if percent > progress.LastPercent {
+			countWithCommas := commas.Format(progress.SoFar)
+			fmt.Printf("Percent complete: %d%%, [%-s] %s records added in %v\r",
+				percent, s, countWithCommas, time.Since(stime))
+		}
+		progress.LastPercent = percent
+
+	}
 }
