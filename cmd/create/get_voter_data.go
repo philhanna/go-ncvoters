@@ -161,6 +161,8 @@ func addMetadata() {
 	handleError(err)
 	_, err = db.Exec(sqlStmt)
 	handleError(err)
+	_, err = db.Exec("CREATE VIEW active_voters as SELECT * FROM voters WHERE status_cd = 'A';")
+	handleError(err)
 	err = tx.Commit()
 	handleError(err)
 }
