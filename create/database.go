@@ -21,6 +21,7 @@ var (
 	colNames        []string
 	progress        *util.Progress
 	stime           time.Time
+	MAX_ENTRIES     int
 )
 
 // CreateDatabase is the mainline for creating a database from the zip file.
@@ -84,7 +85,12 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 	selectedIndices = GetSelectedIndices(colNames, selectedNames)
 
 	// Read from the CSV reader and insert records into the database
+	entries := 0
 	for values := range readFromCSV(csvReader) {
+		entries++
+		if MAX_ENTRIES > 0 && entries > MAX_ENTRIES {
+			break
+		}
 
 		// Insert a record into the database
 		_, err = stmt.Exec(values...)

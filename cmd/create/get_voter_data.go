@@ -32,6 +32,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/philhanna/go-ncvoters/create"
 	"github.com/philhanna/go-ncvoters/download"
+	goncvoters "github.com/philhanna/go-ncvoters"
 	"github.com/philhanna/go-ncvoters/util"
 	"github.com/philhanna/go-ncvoters/webdata"
 )
@@ -57,9 +58,12 @@ options:
 // Variables
 // ---------------------------------------------------------------------
 
-var optForce bool
-var zipFileName = filepath.Join(os.TempDir(), "voter_data.zip")
-var dbFileName = filepath.Join(os.TempDir(), "voter_data.db")
+var (
+	optForce    bool
+	optLimit    int
+	zipFileName = filepath.Join(os.TempDir(), "voter_data.zip")
+	dbFileName  = filepath.Join(os.TempDir(), "voter_data.db")
+)
 
 // ---------------------------------------------------------------------
 // Functions
@@ -76,6 +80,8 @@ func main() {
 	// Parse the command line
 	flag.BoolVar(&optForce, "force", false, "Deletes the zipfile, if it exists")
 	flag.BoolVar(&optForce, "f", false, "Deletes the zipfile, if it exists")
+	flag.IntVar(&optLimit, "limit", 0, "Maximum number of entries")
+	flag.IntVar(&optLimit, "l", 0, "Maximum number of entries")
 	flag.Usage = func() {
 		fmt.Fprint(os.Stderr, Usage)
 	}
@@ -99,12 +105,6 @@ func run() {
 
 	var err error
 
-	handleError := func(err error) {
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-
 	log.Println("Starting voter database creation")
 
 	// Download or reuse the voter zip file
@@ -125,14 +125,25 @@ func run() {
 	}
 
 	// Create the database
+	create.MAX_ENTRIES = optLimit
 	create.CreateDatabase(zipFileName, entryName, dbFileName, progressEvery)
+
+	// Add the metadata tables
+	addMetadata()
+
+	// Add the additional tables, if specified
+	addAdditionalTables()
+
+	log.Println("Process completed successfully!")
+}
+
+// addMetadata adds the metadata tables
+func addMetadata() {
 
 	// Add the metadata tables
 	log.Println("Adding metadata tables...")
 	db, err := sql.Open("sqlite3", dbFileName)
-	if err != nil {
-		log.Fatal(err)
-	}
+	handleError(err)
 	defer db.Close()
 
 	// Get the layout
@@ -152,6 +163,35 @@ func run() {
 	handleError(err)
 	err = tx.Commit()
 	handleError(err)
+}
 
-	log.Println("Process completed successfully!")
+// addAdditionalTables create any additional tables specified
+// in the configuration file
+func addAdditionalTables() {
+	if len(goncvoters.Configuration.GetTables()) <= 0 {
+		return
+	}
+	log.Println("Adding additional tables")
+	db, err := sql.Open("sqlite3", dbFileName)
+	handleError(err)
+	defer db.Close()
+	for i, tableSQL := range goncvoters.Configuration.GetTables() {
+		fmt.Printf("Table %d:\n%s\n", i+1, tableSQL)
+		tx, err := db.Begin()
+		handleError(err)
+		_, err = db.Exec(tableSQL)
+		handleError(err)
+		err = tx.Commit()
+		handleError(err)
+	}
+}
+
+// handleError provides common error handling for the program
+func handleError(err error, msg ...string) {
+	if err != nil {
+		for _, m := range msg {
+			log.Println(m)
+		}
+		log.Fatal(err)
+	}
 }

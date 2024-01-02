@@ -8,6 +8,7 @@
     - [Choosing the columns](#choosing-the-columns)
   - [Installation](#installation)
   - [Configuration](#configuration)
+    - [Additional tables](#additional-tables)
   - [Running the application](#running-the-application)
   - [Viewing the database](#viewing-the-database)
   - [References](#references)
@@ -178,6 +179,46 @@ replaced by a single space.
 Edit these two sections as you like to specify how to build your database.
 If you are not familiar with YAML, a good introductory page is
 [YAML tutorial](https://www.cloudbees.com/blog/yaml-tutorial-everything-you-need-get-started).
+
+### Additional tables
+<a id="additional_tables"></a>
+
+You can also add a section to describe additional tables you want to
+have added to the database after its construction.  Create a `tables`
+section with a list of entries for each additional table. Specify the SQL
+statements that will create your additional tables as follows:
+
+```yaml
+tables:
+  - |
+    CREATE TABLE family AS
+        SELECT
+            last_name, first_name, middle_name
+            res_street_address
+            (etc.)
+        FROM        voters
+        WHERE       first_name = 'LARRY' AND last_name = 'FINE'
+        OR          first_name = 'CURLY  AND last_name = 'HOWARD'
+        OR          first_name = 'MOE'   AND last_name = 'HOWARD'
+        ORDER BY    1, 2, 3
+        ;
+        
+  - |
+    CREATE TABLE friends AS
+        SELECT
+            last_name, first_name, middle_name
+            res_street_address
+            (etc.)
+        FROM        voters
+        WHERE       first_name = 'TOM' AND last_name = 'THUMB'
+        OR          first_name = 'SNOW  AND last_name = 'WHITE'
+        ORDER BY    1, 2, 3
+        ;
+        
+```
+
+Note the pipe character "|" after the hyphen that begins the SQL for your table.
+This allows you to continue the SQL onto multiple lines.
 
 ## Running the application
 <a id="running-the-application"></a>

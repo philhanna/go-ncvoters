@@ -14,6 +14,7 @@ import (
 type configuration struct {
 	SelectedColumns []string `yaml:"selected_columns"`
 	SanitizeColumns []string `yaml:"sanitize_columns"`
+	Tables []string `yaml:"tables"`
 }
 
 // ---------------------------------------------------------------------
@@ -57,13 +58,18 @@ func newConfiguration() *configuration {
 // ---------------------------------------------------------------------
 
 // GetColumnNames returns the list of selected column names
-func (self *configuration) GetColumnNames() []string {
-	return self.SelectedColumns
+func (config *configuration) GetColumnNames() []string {
+	return config.SelectedColumns
 }
 
 // GetSanitizeColumns returns the list of columns that need to be
 // sanitized (i.e., have multiple embedded whitespace characters
 // replaced with a single space).
-func (self *configuration) GetSanitizeColumns() []string {
-	return self.SanitizeColumns
+func (config *configuration) GetSanitizeColumns() []string {
+	return config.SanitizeColumns
+}
+
+// GetTables returns the list of SQL for additional tables
+func (config *configuration) GetTables() []string {
+	return config.Tables
 }
