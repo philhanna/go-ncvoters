@@ -14,7 +14,7 @@ import (
 type configuration struct {
 	SelectedColumns []string `yaml:"selected_columns"`
 	SanitizeColumns []string `yaml:"sanitize_columns"`
-	Tables []string `yaml:"tables"`
+	Tables          []string `yaml:"tables"`
 }
 
 // ---------------------------------------------------------------------

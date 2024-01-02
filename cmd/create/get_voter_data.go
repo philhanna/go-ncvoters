@@ -30,9 +30,9 @@ import (
 	"path/filepath"
 
 	_ "github.com/mattn/go-sqlite3"
+	goncvoters "github.com/philhanna/go-ncvoters"
 	"github.com/philhanna/go-ncvoters/create"
 	"github.com/philhanna/go-ncvoters/download"
-	goncvoters "github.com/philhanna/go-ncvoters"
 	"github.com/philhanna/go-ncvoters/util"
 	"github.com/philhanna/go-ncvoters/webdata"
 )
