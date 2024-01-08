@@ -1,12 +1,18 @@
 package util
 
-import "os"
+import (
+	"os"
+	"path/filepath"
+	"strings"
+)
 
 // FileExists returns true if the specified file exists
 func FileExists(filename string) bool {
-	_, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
+	if strings.HasPrefix(filename, "~/") {
+		simpleName := strings.TrimPrefix(filename, "~/")
+		dirname, _ := os.UserHomeDir()
+		filename = filepath.Join(dirname, simpleName)
 	}
-	return true
+	_, err := os.Stat(filename)
+	return !os.IsNotExist(err)
 }
