@@ -4,6 +4,7 @@ This project adheres to [Semantic Versioning].
 The format is based on [Keep a Changelog].
 	
 ## [Unreleased]
+- Test coverage now at 100%
 
 ## [v1.3.0] - 2024-01-02
 - Added configurable additional tables
