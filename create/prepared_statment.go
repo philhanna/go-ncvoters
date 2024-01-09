@@ -10,9 +10,6 @@ import (
 // records into the voters table.
 func CreatePreparedStatement(tx *sql.Tx) (*sql.Stmt, error) {
 	sqlString := CreateInsertSQL(goncvoters.Configuration.GetColumnNames())
-	stmt, err := tx.Prepare(sqlString)
-	if err != nil {
-		return nil, err
-	}
+	stmt, _ := tx.Prepare(sqlString)
 	return stmt, nil
 }

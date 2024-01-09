@@ -25,42 +25,33 @@ var (
 )
 
 // CreateDatabase is the mainline for creating a database from the zip file.
-func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int) {
-
-	// Internal function for consistent error handling
-	handleError := func(err error) {
-		if err != nil {
-			log.Fatal(err)
-		}
+func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int) error {
+	if !quiet() {
+		log.Println("Creating database...")
 	}
-
-	log.Println("Creating database...")
-
 	stime = time.Now()
 
 	// Open the database
-	db, err := sql.Open("sqlite3", ":memory:")
-	handleError(err)
+	db, _ := sql.Open("sqlite3", ":memory:")
 	defer db.Close()
 
 	// Begin a transaction
-	tx, err := db.Begin()
-	handleError(err)
+	tx, _ := db.Begin()
 
 	// Create a table with selected columns
 	query := CreateDDL()
-	_, err = tx.Exec(query)
-	handleError(err)
+	tx.Exec(query)
 
 	// Create a prepared statement for inserting records into the voters
 	// table.
-	stmt, err := CreatePreparedStatement(tx)
-	handleError(err)
+	stmt, _ := CreatePreparedStatement(tx)
 	defer stmt.Close()
 
 	// Get the zip file entry for the embedded CSV file
 	zipEntry, err := GetZipEntry(zipFileName, entryName)
-	handleError(err)
+	if err != nil {
+		return err
+	}
 
 	// Initialize the progress bar
 	progress = util.NewProgress()
@@ -69,8 +60,7 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 	progress.LastPercent = 0
 
 	// Open the CSV file entry
-	f, err := zipEntry.Open()
-	handleError(err)
+	f, _ := zipEntry.Open()
 	defer f.Close()
 
 	// Create a CSV csvReader over the zip file entry
@@ -79,8 +69,7 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 	csvReader.FieldsPerRecord = -1 // Allow varying number of fields
 
 	// Get the column names
-	colNames, err = csvReader.Read()
-	handleError(err)
+	colNames, _ = csvReader.Read()
 	selectedNames := goncvoters.Configuration.GetColumnNames()
 	selectedIndices = GetSelectedIndices(colNames, selectedNames)
 
@@ -93,8 +82,7 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 		}
 
 		// Insert a record into the database
-		_, err = stmt.Exec(values...)
-		handleError(err)
+		stmt.Exec(values...)
 
 		// Update the progress bar
 		showProgress()
@@ -102,31 +90,40 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 	fmt.Println()
 
 	// Commit the transaction
-	err = tx.Commit()
-	handleError(err)
+	tx.Commit()
 
 	// Now copy to the real database on disk
 	if util.FileExists(dbFileName) {
-		log.Printf("Deleting existing disk database %s\n", dbFileName)
+		if !quiet() {
+			log.Printf("Deleting existing disk database %s\n", dbFileName)
+		}
 		os.Remove(dbFileName)
 	}
 
-	log.Println("Attaching physical database...")
+	if !quiet() {
+		log.Println("Attaching physical database...")
+	}
 	sql := fmt.Sprintf(`ATTACH DATABASE %q AS diskdb;`, dbFileName)
-	_, err = db.Exec(sql)
-	handleError(err)
+	db.Exec(sql)
 
-	log.Println("Copying voters table...")
+	if !quiet() {
+		log.Println("Copying voters table...")
+	}
 	sql = `CREATE TABLE diskdb.voters AS SELECT * FROM voters;`
-	_, err = db.Exec(sql)
-	handleError(err)
+	db.Exec(sql)
 
-	log.Println("Detaching physical database...")
+	if !quiet() {
+		log.Println("Detaching physical database...")
+	}
 	sql = `DETACH DATABASE diskdb;`
-	_, err = db.Exec(sql)
-	handleError(err)
+	db.Exec(sql)
 
-	log.Printf("Database created successfully in %v\n", time.Since(stime))
+	if !quiet() {
+		log.Printf("Database created successfully in %v\n", time.Since(stime))
+	}
+
+	// Return without error
+	return nil
 }
 
 // estimatedNumberOfVoters returns the estimated number of voters based
@@ -154,9 +151,7 @@ func readFromCSV(reader *csv.Reader) chan []any {
 			if err == io.EOF {
 				break
 			}
-			if err != nil {
-				log.Fatal(err)
-			}
+
 			// Choose just the columns we want
 			values := make([]any, len(selectedIndices))
 			for i, idx := range selectedIndices {
@@ -184,8 +179,10 @@ func showProgress() {
 		}
 		if percent > progress.LastPercent {
 			countWithCommas := commas.Format(progress.SoFar)
-			fmt.Printf("Percent complete: %d%%, [%-s] %s records added in %v\r",
-				percent, s, countWithCommas, time.Since(stime))
+			if !quiet() {
+				fmt.Printf("Percent complete: %d%%, [%-s] %s records added in %v\r",
+					percent, s, countWithCommas, time.Since(stime))
+			}
 		}
 		progress.LastPercent = percent
 

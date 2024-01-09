@@ -51,6 +51,7 @@ positional arguments:
 options:
   -h, --help     Show this help text and exit
   -f, --force    Force the zip file to be downloaded, not reused
+  -q, --quiet    Do not log progress messages
 
   `
 
@@ -82,6 +83,9 @@ func main() {
 	flag.BoolVar(&optForce, "f", false, "Deletes the zipfile, if it exists")
 	flag.IntVar(&optLimit, "limit", 0, "Maximum number of entries")
 	flag.IntVar(&optLimit, "l", 0, "Maximum number of entries")
+	flag.BoolVar(&goncvoters.OptQuiet, "quiet", false, "Do not log messages")
+	flag.BoolVar(&goncvoters.OptQuiet, "q", false, "Do not log messages")
+
 	flag.Usage = func() {
 		fmt.Fprint(os.Stderr, Usage)
 	}
@@ -92,6 +96,10 @@ func main() {
 
 	// Run the database creation
 	run()
+}
+
+func quiet() bool {
+	return goncvoters.OptQuiet
 }
 
 // Runs the application
@@ -105,7 +113,9 @@ func run() {
 
 	var err error
 
-	log.Println("Starting voter database creation")
+	if !quiet() {
+		log.Println("Starting voter database creation")
+	}
 
 	// Download or reuse the voter zip file
 	reuse := false
@@ -116,7 +126,9 @@ func run() {
 		reuse = false
 	}
 	if reuse {
-		log.Printf("Reusing existing zip file: %v\n", zipFileName)
+		if !quiet() {
+			log.Printf("Reusing existing zip file: %v\n", zipFileName)
+		}
 	} else {
 		err = download.DownloadFile(zipURL, zipFileName)
 		if err != nil {
@@ -134,14 +146,18 @@ func run() {
 	// Add the additional tables, if specified
 	addAdditionalTables()
 
-	log.Println("Process completed successfully!")
+	if !quiet() {
+		log.Println("Process completed successfully!")
+	}
 }
 
 // addMetadata adds the metadata tables
 func addMetadata() {
 
 	// Add the metadata tables
-	log.Println("Adding metadata tables...")
+	if !quiet() {
+		log.Println("Adding metadata tables...")
+	}
 	db, err := sql.Open("sqlite3", dbFileName)
 	handleError(err)
 	defer db.Close()
@@ -173,12 +189,13 @@ func addAdditionalTables() {
 	if len(goncvoters.Configuration.GetTables()) <= 0 {
 		return
 	}
-	log.Println("Adding additional tables")
+	if !quiet() {
+		log.Println("Adding additional tables")
+	}
 	db, err := sql.Open("sqlite3", dbFileName)
 	handleError(err)
 	defer db.Close()
-	for i, tableSQL := range goncvoters.Configuration.GetTables() {
-		fmt.Printf("Table %d:\n%s\n", i+1, tableSQL)
+	for _, tableSQL := range goncvoters.Configuration.GetTables() {
 		tx, err := db.Begin()
 		handleError(err)
 		_, err = db.Exec(tableSQL)

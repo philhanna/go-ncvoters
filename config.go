@@ -24,31 +24,41 @@ type configuration struct {
 const PACKAGE_NAME = "go-ncvoters"
 
 var Configuration *configuration
+var OptQuiet bool
 
 func init() {
-	Configuration = newConfiguration()
+	Configuration = newConfiguration(getConfigurationFileName())
 }
 
 // ---------------------------------------------------------------------
 // Constructor
 // ---------------------------------------------------------------------
 
-// newConfiguration creates a new selected columns object and loads it
-// from a configuration file.  This is an internal methods that is
-// called from init().
-func newConfiguration() *configuration {
-	p := new(configuration)
-
+// getConfigurationFileName returns the fully qualified path to the
+// config.yaml file.
+func getConfigurationFileName() string {
 	// Get the configuration file directory
 	configDir, _ := os.UserConfigDir()
 	filename := filepath.Join(configDir, PACKAGE_NAME, "config.yaml")
+	return filename
+}
+
+// newConfiguration creates a new selected columns object and loads it
+// from a configuration file.  This is an internal methods that is
+// called from init().
+func newConfiguration(filename string) *configuration {
+	p := new(configuration)
+
+	// Read the configuration file
 	configData, err := os.ReadFile(filename)
 	if err != nil {
-		log.Fatalf("%s file not found", filename)
+		log.Printf("%s file not found", filename)
+		return nil
 	}
 	err = yaml.Unmarshal(configData, p)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return nil
 	}
 	return p
 }

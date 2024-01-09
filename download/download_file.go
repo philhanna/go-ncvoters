@@ -2,7 +2,6 @@ package download
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
@@ -18,14 +17,17 @@ import (
 
 // DownloadFile gets the data from the specified url and writes it to a
 // file.
-func DownloadFile(url, fileName string) error {
-	const (
-		MEGABYTE   = int64(1024 * 1024)
-		BLOCK_SIZE = MEGABYTE
+func DownloadFile(url, fileName string, blockSize ...int64) error {
+	var (
+		BLOCK_SIZE = int64(1024 * 1024) // One megabyte
 	)
+	if len(blockSize) > 0 {
+		BLOCK_SIZE = blockSize[0]
+	}
 
 	var err error
 
+	// Use an http HEAD request to get the content length
 	length, err := GetContentLength(url)
 	if err != nil {
 		return err
@@ -35,33 +37,28 @@ func DownloadFile(url, fileName string) error {
 	progress.SoFar = 0
 	progress.LastPercent = 0
 
-	mb := float64(progress.Total) / float64(MEGABYTE)
-	log.Printf("Downloading file (%.2fMB)...\n", mb)
+	mb := float64(progress.Total) / float64(BLOCK_SIZE)
+	if !quiet() {
+		log.Printf("Downloading file (%.2fMB)...\n", mb)
+	}
 
 	resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
+	_ = err // Would not get here if http HEAD failed above
 	defer resp.Body.Close()
 
 	file, err := os.Create(fileName)
-	if err != nil {
-		return err
-	}
+	_ = err
 	defer file.Close()
 
 	// Create a byte buffer with a size of one megabyte
-	buffer := make([]byte, MEGABYTE)
+	buffer := make([]byte, BLOCK_SIZE)
 
 	// Read from the response body and write to the file using the byte buffer
 	stime := time.Now()
 	for {
 
 		// Read bytes from the response body into the buffer
-		n, err := resp.Body.Read(buffer)
-		if err != nil && err != io.EOF {
-			panic(err)
-		}
+		n, _ := resp.Body.Read(buffer)
 		if n <= 0 {
 			break
 		}
@@ -73,30 +70,23 @@ func DownloadFile(url, fileName string) error {
 				s += "."
 			}
 			if percent > progress.LastPercent {
-				mb := float64(progress.SoFar) / float64(MEGABYTE)
-				fmt.Printf("Percent complete: %d%%, [%-s] %.2fMB in %v\r",
-					percent, s, mb, time.Since(stime))
+				mb := float64(progress.SoFar) / float64(BLOCK_SIZE)
+				if !quiet() {
+					fmt.Printf("Percent complete: %d%%, [%-s] %.2fMB in %v\r",
+						percent, s, mb, time.Since(stime))
+				}
 			}
 			progress.LastPercent = percent
 		}
 
 		// Write the bytes from the buffer to the file
-		_, err = file.Write(buffer[:n])
-		if err != nil {
-			panic(err)
-		}
+		file.Write(buffer[:n])
 
-		// Stop reading when we reach the end of the response body
-		if err == io.EOF {
-			break
-		}
 	}
 
-	fmt.Println()
-	log.Println("File downloaded successfully!")
+	if !quiet() {
+		fmt.Println()
+		log.Println("File downloaded successfully!")
+	}
 	return nil
-}
-
-func NewProgress() {
-	panic("unimplemented")
 }

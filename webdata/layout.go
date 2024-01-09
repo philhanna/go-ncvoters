@@ -36,6 +36,8 @@ const (
 	TABLE_STATUS_CODES = "status_codes"
 )
 
+var BUFSIZ = 65536
+
 // ---------------------------------------------------------------------
 // Constructor
 // ---------------------------------------------------------------------
@@ -58,9 +60,11 @@ func NewLayout() *Layout {
 
 // DownloadLayout gets the latest layout data from the voters website
 // and writes it to a file in the system temporary directory
-func DownloadLayout(url string) (string, error) {
+func DownloadLayout(url string, bufsiz ...int) (string, error) {
 
-	const BUFSIZ = 65536
+	if len(bufsiz) > 0 {
+		BUFSIZ = bufsiz[0]
+	}
 
 	// Get the page with the layout data
 	resp, err := http.Get(url)
@@ -78,10 +82,7 @@ func DownloadLayout(url string) (string, error) {
 
 	// Write the page to /tmp/voter_layout.txt
 	filename := path.Join(os.TempDir(), "voter_layout.txt")
-	fp, err := os.Create(filename)
-	if err != nil {
-		return filename, err
-	}
+	fp, _ := os.Create(filename)
 	defer fp.Close()
 
 	buffer := make([]byte, BUFSIZ)
@@ -95,8 +96,6 @@ readLoop:
 				fp.Write(buffer[:n])
 			}
 			break readLoop
-		case err != nil:
-			return filename, err
 		default:
 			fp.Write(buffer[:n])
 		}
