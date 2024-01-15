@@ -51,6 +51,7 @@ positional arguments:
 options:
   -h, --help     Show this help text and exit
   -f, --force    Force the zip file to be downloaded, not reused
+  -m, --metadata Add metadata tables
   -q, --quiet    Do not log progress messages
 
   `
@@ -62,6 +63,7 @@ options:
 var (
 	optForce    bool
 	optLimit    int
+	optMeta     bool
 	zipFileName = filepath.Join(os.TempDir(), "voter_data.zip")
 	dbFileName  = filepath.Join(os.TempDir(), "voter_data.db")
 )
@@ -83,6 +85,8 @@ func main() {
 	flag.BoolVar(&optForce, "f", false, "Deletes the zipfile, if it exists")
 	flag.IntVar(&optLimit, "limit", 0, "Maximum number of entries")
 	flag.IntVar(&optLimit, "l", 0, "Maximum number of entries")
+	flag.BoolVar(&optMeta, "metadata", false, "Add metadata tables")
+	flag.BoolVar(&optMeta, "m", false, "Add metadata tables")
 	flag.BoolVar(&goncvoters.OptQuiet, "quiet", false, "Do not log messages")
 	flag.BoolVar(&goncvoters.OptQuiet, "q", false, "Do not log messages")
 
@@ -141,7 +145,9 @@ func run() {
 	create.CreateDatabase(zipFileName, entryName, dbFileName, progressEvery)
 
 	// Add the metadata tables
-	addMetadata()
+	if optMeta {
+		addMetadata()
+	}
 
 	// Add the additional tables, if specified
 	addAdditionalTables()
@@ -176,8 +182,6 @@ func addMetadata() {
 	tx, err := db.Begin()
 	handleError(err)
 	_, err = db.Exec(sqlStmt)
-	handleError(err)
-	_, err = db.Exec("CREATE VIEW active_voters as SELECT * FROM voters WHERE status_cd = 'A';")
 	handleError(err)
 	err = tx.Commit()
 	handleError(err)
