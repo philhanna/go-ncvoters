@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog].
 ## [Unreleased]
 - Test coverage now at 100%
 
+## [v1.4.0] - 2024-01-14
+- Added `--metadata` option
+
 ## [v1.3.0] - 2024-01-02
 - Added configurable additional tables
 - Added active table view
@@ -35,7 +38,8 @@ Release candidate 1
 
 [Semantic Versioning]: http://semver.org
 [Keep a Changelog]: http://keepachangelog.com
-[Unreleased]: https://github.com/philhanna/go-ncvoters/compare/v1.3.0..HEAD
+[Unreleased]: https://github.com/philhanna/go-ncvoters/compare/v1.4.0..HEAD
+[v1.4.0]: https://github.com/philhanna/go-ncvoters/compare/v1.3.0..v1.4.0
 [v1.3.0]: https://github.com/philhanna/go-ncvoters/compare/v1.2.0..v1.3.0
 [v1.2.0]: https://github.com/philhanna/go-ncvoters/compare/v1.1.0..v1.2.0
 [v1.1.0]: https://github.com/philhanna/go-ncvoters/compare/v1.0.0..v1.1.0
