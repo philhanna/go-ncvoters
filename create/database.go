@@ -157,12 +157,12 @@ func readFromCSV(reader *csv.Reader) chan any {
 
 // sanitizeColumns removes embedded spaces
 func sanitizeColumns(input any) any {
-	record := input.([]string)
+	record := input.([]any)
 	output := make([]any, len(selectedIndices))
 	for i, idx := range selectedIndices {
 		colName := colNames[idx]
 		if IsSanitizeCol(colName) {
-			output[i] = Sanitize(record[i])
+			output[i] = Sanitize(record[i].(string))
 		} else {
 			output[i] = record[i]
 		}
