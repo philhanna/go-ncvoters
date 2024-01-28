@@ -141,7 +141,7 @@ func estimatedNumberOfVoters(size uint64) int64 {
 // readFromCSV reads one record at a time from the CSV file and sends it
 // through an output channel
 func readFromCSV(reader *csv.Reader) chan any {
-	ch := make(chan any)
+	ch := make(chan any, 100)
 	go func() {
 		defer close(ch)
 		for {
