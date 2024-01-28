@@ -61,3 +61,43 @@ func TestMap(t *testing.T) {
 		})
 	}
 }
+
+func TestReduce(t *testing.T) {
+	tests := []struct {
+		name   string
+		inputs []any
+		want   int
+	}{
+		{
+			name:   "Happy path",
+			inputs: []any{1, 2, 3},
+			want:   6,
+		},
+		{
+			name:   "Just one value",
+			inputs: []any{1},
+			want:   1,
+		},
+		{
+			name:   "Empty",
+			inputs: []any{},
+			want:   0,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ch := make(chan any)
+			go func() {
+				defer close(ch)
+				for _, input := range tt.inputs {
+					ch <- input
+				}
+			}()
+			add := func(x, y any) any {
+				return x.(int) + y.(int)
+			}
+			have := Reduce(add, ch, 0)
+			assert.Equal(t, tt.want, have)
+		})
+	}
+}
