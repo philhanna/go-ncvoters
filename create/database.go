@@ -78,7 +78,12 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 	sanChannel := goncvoters.Map(sanitizeColumns, selChannel)
 
 	// Read from the CSV reader and insert records into the database
+	entries := 0
 	for input := range sanChannel {
+		entries++
+		if MAX_ENTRIES > 0 && entries > MAX_ENTRIES {
+			break
+		}
 		values := input.([]any)
 		stmt.Exec(values...)
 		showProgress()
