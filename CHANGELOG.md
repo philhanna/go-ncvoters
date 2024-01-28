@@ -4,10 +4,9 @@ This project adheres to [Semantic Versioning].
 The format is based on [Keep a Changelog].
 	
 ## [Unreleased]
-- Test coverage now at 100%
-
-## [v1.4.0] - 2024-01-14
-- Added `--metadata` option
+- Added --metadata option
+- Converted main read/write loop to channels in a pipeline
+- Test coverage at 100%
 
 ## [v1.3.0] - 2024-01-02
 - Added configurable additional tables
@@ -38,8 +37,7 @@ Release candidate 1
 
 [Semantic Versioning]: http://semver.org
 [Keep a Changelog]: http://keepachangelog.com
-[Unreleased]: https://github.com/philhanna/go-ncvoters/compare/v1.4.0..HEAD
-[v1.4.0]: https://github.com/philhanna/go-ncvoters/compare/v1.3.0..v1.4.0
+[Unreleased]: https://github.com/philhanna/go-ncvoters/compare/v1.3.0..HEAD
 [v1.3.0]: https://github.com/philhanna/go-ncvoters/compare/v1.2.0..v1.3.0
 [v1.2.0]: https://github.com/philhanna/go-ncvoters/compare/v1.1.0..v1.2.0
 [v1.1.0]: https://github.com/philhanna/go-ncvoters/compare/v1.0.0..v1.1.0
