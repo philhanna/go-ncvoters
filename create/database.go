@@ -73,14 +73,13 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 	selectedNames := goncvoters.Configuration.GetColumnNames()
 	selectedIndices = GetSelectedIndices(colNames, selectedNames)
 
+	csvChannel := readFromCSV(csvReader)
+	selChannel := goncvoters.Map(selectedColumns, csvChannel)
+	sanChannel := goncvoters.Map(sanitizeColumns, selChannel)
+	_ = sanChannel
+	
 	// Read from the CSV reader and insert records into the database
-	entries := 0
 	for values := range readFromCSV(csvReader) {
-		entries++
-		if MAX_ENTRIES > 0 && entries > MAX_ENTRIES {
-			break
-		}
-
 		// Insert a record into the database
 		stmt.Exec(values...)
 
@@ -142,8 +141,10 @@ func estimatedNumberOfVoters(size uint64) int64 {
 	return count
 }
 
-func readFromCSV(reader *csv.Reader) chan []any {
-	ch := make(chan []any, 100)
+// readFromCSV reads one record at a time from the CSV file and sends it
+// through an output channel
+func readFromCSV(reader *csv.Reader) chan any {
+	ch := make(chan any)
 	go func() {
 		defer close(ch)
 		for {
@@ -151,24 +152,23 @@ func readFromCSV(reader *csv.Reader) chan []any {
 			if err == io.EOF {
 				break
 			}
-
-			// Choose just the columns we want
-			values := make([]any, len(selectedIndices))
-			for i, idx := range selectedIndices {
-				colName := colNames[idx]
-				if IsSanitizeCol(colName) {
-					value := string(record[idx])
-					values[i] = Sanitize(value)
-				} else {
-					values[i] = record[idx]
-				}
-			}
-			ch <- values // Send the row of values down the channel
+			ch <- record
 		}
 	}()
 	return ch
 }
 
+// selectedColumns returns just the columns the user has selected
+func selectedColumns(input any) any {
+	record := input.([]string)
+	values := make([]any, len(selectedIndices))
+	for i, idx := range selectedIndices {
+		values[i] = record[idx]
+	}
+	return values
+}
+
+// showProgress prints the progress bar
 func showProgress() {
 	progress.SoFar++
 	percent := int(float64(progress.SoFar) / float64(progress.Total) * 100)
