@@ -63,25 +63,54 @@ func TestMap(t *testing.T) {
 }
 
 func TestReduce(t *testing.T) {
+	add := func(x, y any) any {
+		return x.(int) + y.(int)
+	}
+
+	longest := func(x, y any) any {
+		xs := x.(string)
+		ys := y.(string)
+		switch {
+		case len(ys) > len(xs):
+			return ys
+		default:
+			return xs
+		}
+	}
+
 	tests := []struct {
-		name   string
-		inputs []any
-		want   int
+		name    string
+		f       func(x, y any) any
+		inputs  []any
+		initial any
+		want    any
 	}{
 		{
-			name:   "Happy path",
-			inputs: []any{1, 2, 3},
-			want:   6,
+			name:    "strings",
+			f:       longest,
+			inputs:  []any{"Larry", "Curly", "Moe"},
+			initial: "",
+			want:    "Larry",
 		},
 		{
-			name:   "Just one value",
-			inputs: []any{1},
-			want:   1,
+			name:    "Happy path",
+			f:       add,
+			inputs:  []any{1, 2, 3},
+			initial: 0,
+			want:    6,
 		},
 		{
-			name:   "Empty",
-			inputs: []any{},
-			want:   0,
+			name:    "Just one value",
+			f:       add,
+			inputs:  []any{1},
+			initial: 0,
+			want:    1,
+		},
+		{
+			name:    "Empty",
+			inputs:  []any{},
+			initial: 0,
+			want:    0,
 		},
 	}
 	for _, tt := range tests {
@@ -93,10 +122,7 @@ func TestReduce(t *testing.T) {
 					ch <- input
 				}
 			}()
-			add := func(x, y any) any {
-				return x.(int) + y.(int)
-			}
-			have := Reduce(add, ch, 0)
+			have := Reduce(tt.f, ch, tt.initial)
 			assert.Equal(t, tt.want, have)
 		})
 	}
