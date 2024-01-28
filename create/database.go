@@ -74,8 +74,8 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 	selectedIndices = GetSelectedIndices(colNames, selectedNames)
 
 	csvChannel := readFromCSV(csvReader)
-	selChannel := goncvoters.Map(selectedColumns, csvChannel)
-	sanChannel := goncvoters.Map(sanitizeColumns, selChannel)
+	selChannel := goncvoters.Map(selectedColumns, csvChannel, 50)
+	sanChannel := goncvoters.Map(sanitizeColumns, selChannel, 50)
 
 	// Read from the CSV reader and insert records into the database
 	entries := 0
@@ -146,7 +146,7 @@ func estimatedNumberOfVoters(size uint64) int64 {
 // readFromCSV reads one record at a time from the CSV file and sends it
 // through an output channel
 func readFromCSV(reader *csv.Reader) chan any {
-	ch := make(chan any, 100)
+	ch := make(chan any, 10)
 	go func() {
 		defer close(ch)
 		for {
