@@ -12,24 +12,52 @@ func TestMap(t *testing.T) {
 		return n * n
 	}
 
-	inch := make(chan any)
-	inputs := []any{1, 2, 3, 4, 5}
-	ouch := Map(square, inch)
-
-	go func() {
-		for _, input := range inputs {
-			inch <- input
-		}
-		close(inch)
-	}()
-
-	for _, expected := range []any{1, 4, 9, 16, 25} {
-		actual, ok := <-ouch
-		assert.True(t, ok)
-		assert.Equal(t, expected, actual)
+	tests := []struct {
+		name     string
+		bufsize  int
+		limit    int
+		expected []any
+	}{
+		{
+			name:     "Unbuffered",
+			bufsize:  0,
+			limit:    3,
+			expected: []any{1, 4, 9},
+		},
+		{
+			name:     "Buffered",
+			bufsize:  10,
+			limit:    3,
+			expected: []any{1, 4, 9},
+		},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			inch := make(chan any)
+			var ouch chan any
+			switch tt.bufsize {
+			case 0:
+				ouch = Map(square, inch)
+			default:
+				ouch = Map(square, inch, tt.bufsize)
+			}
 
-	if _, ok := <-ouch; ok {
-		t.Fatal("Received more outputs than expected")
+			go func() {
+				for i := 1; i <= tt.limit; i++ {
+					inch <- i
+				}
+				close(inch)
+			}()
+
+			for _, expected := range tt.expected {
+				actual, ok := <-ouch
+				assert.Truef(t, ok, "Not enough values found in channel")
+				assert.Equal(t, expected, actual)
+			}
+
+			_, ok := <-ouch
+			assert.Falsef(t, ok, "Too many values found in channel")
+
+		})
 	}
 }
