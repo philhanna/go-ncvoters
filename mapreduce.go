@@ -1,7 +1,12 @@
 package goncvoters
 
-func Map(f func(any) any, inch chan any) chan any {
-	ouch := make(chan any, 100)
+func Map(f func(any) any, inch chan any, bufsize ...int) chan any {
+	var ouch chan any
+	if len(bufsize) > 0 {
+		ouch = make(chan any, bufsize[0])
+	} else {
+		ouch = make(chan any)
+	}
 	go func() {
 		defer close(ouch)
 		for input := range inch {
