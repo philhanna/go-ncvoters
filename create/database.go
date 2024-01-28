@@ -76,14 +76,11 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 	csvChannel := readFromCSV(csvReader)
 	selChannel := goncvoters.Map(selectedColumns, csvChannel)
 	sanChannel := goncvoters.Map(sanitizeColumns, selChannel)
-	_ = sanChannel
-	
-	// Read from the CSV reader and insert records into the database
-	for values := range readFromCSV(csvReader) {
-		// Insert a record into the database
-		stmt.Exec(values...)
 
-		// Update the progress bar
+	// Read from the CSV reader and insert records into the database
+	for input := range sanChannel {
+		values := input.([]any)
+		stmt.Exec(values...)
 		showProgress()
 	}
 	fmt.Println()
@@ -156,6 +153,21 @@ func readFromCSV(reader *csv.Reader) chan any {
 		}
 	}()
 	return ch
+}
+
+// sanitizeColumns removes embedded spaces
+func sanitizeColumns(input any) any {
+	record := input.([]string)
+	output := make([]any, len(selectedIndices))
+	for i, idx := range selectedIndices {
+		colName := colNames[idx]
+		if IsSanitizeCol(colName) {
+			output[i] = Sanitize(record[i])
+		} else {
+			output[i] = record[i]
+		}
+	}
+	return output
 }
 
 // selectedColumns returns just the columns the user has selected
