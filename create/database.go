@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/philhanna/commas"
 	goncvoters "github.com/philhanna/go-ncvoters"
 	"github.com/philhanna/go-ncvoters/util"
@@ -32,11 +33,17 @@ func CreateDatabase(zipFileName, entryName, dbFileName string, progressEvery int
 	stime = time.Now()
 
 	// Open the database
-	db, _ := sql.Open("sqlite3", ":memory:")
+	db, err := sql.Open("sqlite3", ":memory:")
+	if err != nil {
+		log.Fatalf("error opening memory database: %v", err)
+	}
 	defer db.Close()
-
+	
 	// Begin a transaction
-	tx, _ := db.Begin()
+	tx, err := db.Begin()
+	if err != nil {
+		log.Fatalf("error beginning transaction: %v", err)
+	}
 
 	// Create a table with selected columns
 	query := CreateDDL()
